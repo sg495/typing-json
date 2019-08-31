@@ -5,3 +5,5 @@ python:
   - "3.8-dev"
 script:
   - pytest
+install:
+- pip install typing_extensions
