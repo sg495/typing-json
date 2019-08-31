@@ -16,10 +16,11 @@ script:
 install:
   - pip install typing_extensions
   - pip install codecov
+  - pip install pytest pytest-cov
 
 # run the unit test
 script:
-  - coverage run tests.py
+  - pytest --cov=./
 
 # push the results back to codecov
 after_success:
