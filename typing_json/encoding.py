@@ -60,7 +60,7 @@ def to_json_obj(obj: Any, t: Any) -> Any:
             for s in t.__args__:
                 if is_instance(obj, s):
                     return to_json_obj(obj, s)
-            raise AssertionError(_UNREACHABLE_ERROR_MSG)
+            raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover
         if t.__origin__ is Literal:
             return obj
         if t.__origin__ in (list, set, frozenset, deque):
@@ -71,10 +71,10 @@ def to_json_obj(obj: Any, t: Any) -> Any:
             else:
                 return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
         if t.__origin__ is dict:
-            return {field: to_json_obj(field[obj], t.__args__[1]) for field in obj}
+            return {field: to_json_obj(obj[field], t.__args__[1]) for field in obj}
         if t.__origin__ is OrderedDict:
             new_ordered_dict = OrderedDict() # type:ignore
             for field in obj:
-                new_ordered_dict[field] = to_json_obj(field[obj], t.__args__[1])
+                new_ordered_dict[field] = to_json_obj(obj[field], t.__args__[1])
             return new_ordered_dict
-    raise AssertionError(_UNREACHABLE_ERROR_MSG)
+    raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover

@@ -43,12 +43,12 @@ COLLECTION_TYPES_INHERITANCE: Dict[Any, List[Any]] = {
     collections.OrderedDict: [dict],
 }
 
-def _make_generic_collection_types(level: int):
-    if level <= 0:
+def make_generic_collection_types(rec_type_dict, rec_inherit_dict):
+    if not rec_type_dict and not rec_inherit_dict:
         type_dict = {**BASE_TYPES, **COLLECTION_TYPES}
         inherit_dict = {**BASE_TYPES_INHERITANCE, **COLLECTION_TYPES_INHERITANCE}
         return (type_dict, inherit_dict)
-    rec_type_dict, rec_inherit_dict = _make_generic_collection_types(level-1)
+    # rec_type_dict, rec_inherit_dict = make_generic_collection_types(level-1)
     type_dict = {}
     inherit_dict = {}
     for t in rec_type_dict:
@@ -147,8 +147,9 @@ def test_is_instance_base_types():
 def test_is_instance_generic_collection_types():
     type_dict = {}
     inherit_dict = {}
+    type_dict_i, inherit_dict_i = {}, {}
     for i in range(0, 2):
-        type_dict_i, inherit_dict_i = _make_generic_collection_types(i)
+        type_dict_i, inherit_dict_i = make_generic_collection_types(type_dict_i, inherit_dict_i)
         type_dict.update(type_dict_i)
         inherit_dict.update(inherit_dict_i)
     _test_types(type_dict, inherit_dict)
