@@ -5,14 +5,15 @@ from collections import deque, OrderedDict
 from typing_extensions import Literal
 
 TYPECHECKABLE_BASE_TYPES = (bool, int, float, complex, str, bytes, bytearray, memoryview,
-                            list, tuple, range, slice, set, frozenset, dict, type)
+                            list, tuple, range, slice, set, frozenset, dict, type,
+                            deque, OrderedDict, object)
 
 def is_typecheckable(t: Any) -> bool:
     """ Returns True if is_instance is guaranteed to work with type t. """
     # pylint:disable=invalid-name
     if t in TYPECHECKABLE_BASE_TYPES:
         return True
-    if t in (None, ..., NotImplemented, Any):
+    if t in (None, type(None), ..., NotImplemented, Any):
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         if t.__origin__ in (list, tuple, set, frozenset, dict,
@@ -27,9 +28,9 @@ def is_typecheckable(t: Any) -> bool:
 def is_instance(obj: Any, t: Any) -> bool:
     """ Extends isinstance to support the typing package. """
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
-    if isinstance(t, type):
+    if t in TYPECHECKABLE_BASE_TYPES:
         return isinstance(obj, t)
-    if t is None:
+    if t in (None, type(None)):
         return obj is None
     if t is ...:
         return obj is ...
@@ -47,9 +48,7 @@ def is_instance(obj: Any, t: Any) -> bool:
                 return False
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"): # generics
-        if t.__origin__ is Optional:
-            return obj is None or is_instance(obj, t.__args__[0])
-        if t.__origin__ is Union:
+        if t.__origin__ is Union: # includes Optional
             return any(is_instance(obj, s) for s in t.__args__)
         if t.__origin__ is Literal:
             return any(obj is s for s in t.__args__)
@@ -120,14 +119,10 @@ def is_namedtuple(t: Any) -> bool:
         return False
     if not all((n in fields) for n in field_types):
         return False
-    if not all(isinstance(n, str) for n in field_types):
-        return False
     if not all(is_typecheckable(field_types[n]) for n in field_types):
         return False
     field_defaults = getattr(t, "_field_defaults", None)
     if not isinstance(field_defaults, dict):
-        return False
-    if not all(isinstance(n, str) for n in field_defaults):
         return False
     if not all((n in fields) for n in field_defaults):
         return False
