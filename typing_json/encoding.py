@@ -1,22 +1,22 @@
 """ Econding utilities """
 
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Tuple
 from collections import deque, OrderedDict
 from typing_extensions import Literal
 from typing_json.typechecking import is_typecheckable, is_instance, is_namedtuple
 
-JSON_BASE_TYPES = (bool, int, float, str)
+JSON_BASE_TYPES: Tuple[type, ...] = (bool, int, float, str, type(None))
 _UNREACHABLE_ERROR_MSG = "Should never reach this point, please open an issue on GitHub."
 
-def is_json_encodable(t: Any):
+def is_json_encodable(t: Any) -> bool:
     """ Checks whether a type is json encodable. """
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
     if not is_typecheckable(t):
         return False
     if t in JSON_BASE_TYPES:
         return True
-    if t is None:
-        return None
+    if t in (None, type(None)):
+        return True
     if t is ...:
         return True
     if is_namedtuple(t):
@@ -35,10 +35,10 @@ def is_json_encodable(t: Any):
         if t.__origin__ in (dict, OrderedDict):
             return t.__args__[0] == str and is_json_encodable(t.__args__[1])
         if t.__origin__ is Literal:
-            return all(isinstance(s, JSON_BASE_TYPES) for s in t.__args__)
+            return all(isinstance(s, JSON_BASE_TYPES+(type(None),)) for s in t.__args__)
     return False
 
-def to_json_obj(obj: Any, t: Any):
+def to_json_obj(obj: Any, t: Any) -> Any:
     """ Converts an json encodable type to a json standard type. """
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
     if not is_json_encodable(t):
@@ -47,11 +47,11 @@ def to_json_obj(obj: Any, t: Any):
         raise ValueError("Object %s is not of type %s"%(str(obj), str(t)))
     if t in JSON_BASE_TYPES:
         return obj
-    if t is ...:
+    if t in (None, type(None), ...):
         return None
     if is_namedtuple(t):
         field_types = getattr(t, "_field_types")
-        json_dict = {}
+        json_dict = OrderedDict() # type:ignore
         for field in field_types:
             json_dict[field] = to_json_obj(getattr(obj, field), field_types[field])
         return json_dict
@@ -61,10 +61,6 @@ def to_json_obj(obj: Any, t: Any):
                 if is_instance(obj, s):
                     return to_json_obj(obj, s)
             raise AssertionError(_UNREACHABLE_ERROR_MSG)
-        if t.__origin__ is Optional:
-            if obj is None:
-                return None
-            return to_json_obj(obj, t.__args__[0])
         if t.__origin__ is Literal:
             return obj
         if t.__origin__ in (list, set, frozenset, deque):
