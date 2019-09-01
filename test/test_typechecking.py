@@ -137,6 +137,7 @@ def _test_types(type_dict, inherit_dict):
                 assert(not is_instance(type_dict[s], t))
     for t in type_dict:
         assert(is_instance(type_dict[t], object))
+        assert(is_instance(type_dict[t], Any))
 
 def test_is_instance_base_types():
     type_dict = {**BASE_TYPES, **COLLECTION_TYPES}
@@ -228,3 +229,11 @@ def test_is_namedtuple():
     if version_info[0:3]>= (3, 7, 4):
         D._field_types = {"name": str, "value": int}
         assert(is_namedtuple(D))
+
+
+def test_misc():
+    assert(is_instance(None, None))
+    assert(is_typecheckable(None))
+    assert(is_typecheckable(...))
+    assert(is_typecheckable(NotImplemented))
+    assert(is_typecheckable(Literal["s", 0, 1.2]))

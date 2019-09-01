@@ -10,7 +10,7 @@ _UNREACHABLE_ERROR_MSG = "Should never reach this point, please open an issue on
 
 def is_json_encodable(t: Any):
     """ Checks whether a type is json encodable. """
-    # pylint:disable=invalid-name,too-many-return-statements
+    # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
     if not is_typecheckable(t):
         return False
     if t in JSON_BASE_TYPES:

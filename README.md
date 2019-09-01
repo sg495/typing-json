@@ -44,3 +44,9 @@ def is_namedtuple(t: Any) -> bool:
 ```
 
 The function `is_namedtuple(t)` from the `typing_json.typechecking` module returns `True` if the `obj` argument was created using `typing.NamedTuple` and all field types are typecheckable. It is currently possible to fool this method by using `collections.namedtuple` and manually adding a `_field_types:` dictionary with string keys and typecheckable types.
+
+## encoding module
+
+### is_json_encodable
+
+### to_json_obj

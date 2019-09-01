@@ -47,10 +47,10 @@ def is_instance(obj: Any, t: Any) -> bool:
                 return False
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"): # generics
-        if t.__origin__ is Union:
-            return any(is_instance(obj, s) for s in t.__args__)
         if t.__origin__ is Optional:
             return obj is None or is_instance(obj, t.__args__[0])
+        if t.__origin__ is Union:
+            return any(is_instance(obj, s) for s in t.__args__)
         if t.__origin__ is Literal:
             return any(obj is s for s in t.__args__)
         if t.__origin__ is list: # List[_T]
@@ -95,7 +95,6 @@ def is_instance(obj: Any, t: Any) -> bool:
                 return False
             return True
     raise ValueError("Type %s is not supported."%str(t))
-
 
 def is_namedtuple(t: Any) -> bool:
     """
