@@ -5,8 +5,7 @@ from collections import deque, OrderedDict
 from typing_extensions import Literal
 
 TYPECHECKABLE_BASE_TYPES = (bool, int, float, complex, str, bytes, bytearray, memoryview,
-                            list, tuple, range, slice, set, frozenset, dict, type,
-                            None, ..., NotImplemented)
+                            list, tuple, range, slice, set, frozenset, dict, type)
 
 def is_typecheckable(t: Any) -> bool:
     """ Returns True if is_instance is guaranteed to work with type t. """
@@ -17,8 +16,10 @@ def is_typecheckable(t: Any) -> bool:
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         if t.__origin__ in (list, tuple, set, frozenset, dict,
-                            deque, OrderedDict, Union, Optional, Literal):
+                            deque, OrderedDict, Union, Optional):
             return all(is_typecheckable(s) for s in t.__args__)
+        if t.__origin__ is Literal:
+            return all(isinstance(s, TYPECHECKABLE_BASE_TYPES) or s in (None, ..., NotImplemented, Any) for s in t.__args__) # pylint:disable=line-too-long
     if is_namedtuple(t):
         return True
     return False
@@ -35,6 +36,15 @@ def is_instance(obj: Any, t: Any) -> bool:
     if t is NotImplemented:
         return obj is NotImplemented
     if t == Any:
+        return True
+    if is_namedtuple(t):
+        field_types = getattr(t, "_field_types")
+        for field in field_types:
+            if not hasattr(obj, field):
+                return False
+            field_val = getattr(obj, field)
+            if not is_instance(field_val, field_types[field]):
+                return False
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"): # generics
         if t.__origin__ is Union:
@@ -99,12 +109,12 @@ def is_namedtuple(t: Any) -> bool:
     base_classes = t.__bases__
     if len(base_classes) != 1 or base_classes[0] != tuple:
         return False
-    fields = getattr(t, '_fields', None)
+    fields = getattr(t, "_fields", None)
     if not isinstance(fields, tuple):
         return False
     if not all(isinstance(n, str) for n in fields):
         return False
-    field_types = getattr(t, '_field_types', None)
+    field_types = getattr(t, "_field_types", None)
     if not isinstance(field_types, dict):
         return False
     if not all((n in field_types) for n in fields):
@@ -115,7 +125,7 @@ def is_namedtuple(t: Any) -> bool:
         return False
     if not all(is_typecheckable(field_types[n]) for n in field_types):
         return False
-    field_defaults = getattr(t, '_field_defaults', None)
+    field_defaults = getattr(t, "_field_defaults", None)
     if not isinstance(field_defaults, dict):
         return False
     if not all(isinstance(n, str) for n in field_defaults):

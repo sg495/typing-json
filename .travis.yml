@@ -20,7 +20,7 @@ install:
 
 # run the unit test
 script:
-  - pytest --cov=./
+  - pytest --cov=./typing_json/
 
 # push the results back to codecov
 after_success:
