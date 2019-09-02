@@ -46,6 +46,7 @@ def test_from_json_obj():
     a = A("hi", 0)
     # pylint:disable=line-too-long
     assert from_json_obj(to_json_obj(a, A), A) == a
+    assert from_json_obj(["hi", 0], A) == a
     a._field_defaults["value"] = 0 # type:ignore #pylint:disable=no-member,protected-access
     assert from_json_obj({"name": "hi"}, A) == a
     assert from_json_obj(to_json_obj(1, Union[int, float]), Union[int, float]) == 1
@@ -99,7 +100,17 @@ def test_from_json_obj_errors():
     except TypeError:
         assert True
     try:
+        from_json_obj([1.0], A)
+        assert False
+    except TypeError:
+        assert True
+    try:
         from_json_obj({"name": "hi"}, A)
+        assert False
+    except TypeError:
+        assert True
+    try:
+        from_json_obj({"name": "hi", "value": 0, "extra": None}, A)
         assert False
     except TypeError:
         assert True

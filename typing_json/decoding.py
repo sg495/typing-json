@@ -26,14 +26,25 @@ def from_json_obj(obj: Any, t: Any) -> Any:
             raise TypeError("Object %s is not null (t=%s)."%(str(obj), str(t)))
         return ...
     if is_namedtuple(t):
-        if not isinstance(obj, (dict, OrderedDict)):
-            raise TypeError("Object %s is not dictionary (t=%s)."%(str(obj), str(t)))
+        if not isinstance(obj, (dict, OrderedDict, list)):
+            raise TypeError("Object %s is not (ordered) dictionary or list (t=%s)."%(str(obj), str(t))) # pylint:disable=line-too-long
+        fields = getattr(t, "_fields")
         field_types = getattr(t, "_field_types")
-        converted_dict: OrderedDict() = {} # type:ignore
         field_defaults = getattr(t, "_field_defaults")
+        if isinstance(obj, list):
+            if len(fields) != len(obj):
+                raise TypeError("Object %s does not provide the right number of values for a namedtuple.")
+            return_val = t(*tuple(from_json_obj(obj[i] if i < len(obj) else field_defaults[field], field_types[field]) for i, field in enumerate(fields))) # pylint:disable=line-too-long
+            assert is_instance(return_val, t)
+            return return_val
+        converted_dict: OrderedDict() = {} # type:ignore
         if set(obj.keys()).union(set(field_defaults.keys())) != set(field_types.keys()):
-            raise TypeError("Object %s does not have the required keys (t=%s)."%(str(obj), str(t)))
-        for field in field_types:
+            key_diff = set(obj.keys()).union(set(field_defaults.keys())) - set(field_types.keys())
+            if key_diff:
+                raise TypeError("Object %s does not have the required keys: t=%s, extra keys %s."%(str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+            key_diff = set(field_types.keys()) - set(obj.keys()).union(set(field_defaults.keys()))
+            raise TypeError("Object %s does not have the required keys: t=%s, missing keys %s."%(str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+        for field in fields:
             field_type = field_types[field]
             if not field in obj:
                 converted_dict[field] = field_defaults[field]
