@@ -67,12 +67,12 @@ def test_to_json_obj():
     try:
         to_json_obj(1.0j, complex)
         assert False
-    except ValueError:
+    except TypeError:
         assert True
     try:
         to_json_obj("hi", int)
         assert False
-    except ValueError:
+    except TypeError:
         assert True
     for t in BASE_TYPES:
         obj = BASE_TYPES[t]

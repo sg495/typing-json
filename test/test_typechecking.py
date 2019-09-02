@@ -283,5 +283,5 @@ def test_misc():
     try:
         assert is_instance("hi", "bye")
         assert False
-    except ValueError:
+    except TypeError:
         assert True

@@ -35,23 +35,20 @@ def from_json_obj(obj: Any, t: Any) -> Any:
             raise TypeError("Object %s does not have the required keys (t=%s)."%(str(obj), str(t)))
         for field in field_types:
             field_type = field_types[field]
-            if not hasattr(obj, field):
-                if not field in field_defaults:
-                    raise TypeError("Object %s has no field %s (t=%s)."%(str(obj), field, str(t)))
+            if not field in obj:
                 converted_dict[field] = field_defaults[field]
             else:
-                field_val = getattr(obj, field)
-                converted_dict[field] = from_json_obj(field_val, field_type)
-        return_val = t(converted_dict)
+                converted_dict[field] = from_json_obj(obj[field], field_type)
+        return_val = t(**converted_dict)
         assert is_instance(return_val, t)
-        return t
+        return return_val
     if hasattr(t, "__origin__") and hasattr(t, "__args__"): # generics
         if t.__origin__ is Union:
             for s in t.__args__:
                 try:
                     return_val = from_json_obj(obj, s)
                     assert is_instance(return_val, t)
-                    return t
+                    return return_val
                 except TypeError:
                     continue
             raise TypeError("Object %s is not convertible to any of %s."%(str(obj), str(t)))
