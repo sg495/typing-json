@@ -1,4 +1,4 @@
-""" Econding utilities """
+""" Encoding utilities """
 
 from typing import Any, Union, Optional, Tuple
 from collections import deque, OrderedDict
@@ -42,9 +42,9 @@ def to_json_obj(obj: Any, t: Any) -> Any:
     """ Converts an json encodable type to a json standard type. """
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
     if not is_json_encodable(t):
-        raise ValueError("Type %s is not typecheckable."%str(t))
+        raise TypeError("Type %s is not json-encodable."%str(t))
     if not is_instance(obj, t):
-        raise ValueError("Object %s is not of type %s"%(str(obj), str(t)))
+        raise TypeError("Object %s is not of type %s"%(str(obj), str(t)))
     if t in JSON_BASE_TYPES:
         return obj
     if t in (None, type(None), ...):

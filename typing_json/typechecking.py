@@ -93,7 +93,7 @@ def is_instance(obj: Any, t: Any) -> bool:
             if not all(is_instance(obj[x], t.__args__[1]) for x in obj):
                 return False
             return True
-    raise ValueError("Type %s is not supported."%str(t))
+    raise TypeError("Type %s is not supported."%str(t))
 
 def is_namedtuple(t: Any) -> bool:
     """

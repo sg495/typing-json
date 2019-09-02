@@ -35,7 +35,7 @@ def is_instance(obj: Any, t: Any) -> bool:
     ...
 ````
 
-The function `is_instance(obj, t)` returns `True` if and only if the `obj` argument is of type `t`. If `t` is not typecheckable according to `is_typecheckable(t)` then `ValueError` is raised.
+The function `is_instance(obj, t)` returns `True` if and only if the `obj` argument is of type `t`. If `t` is not typecheckable according to `is_typecheckable(t)` then `TypeError` is raised.
 
 
 ### is_namedtuple
@@ -87,4 +87,35 @@ The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable ty
 - if `t` is `Dict[str, _T]`, a dictionary is returned containing the keys of `obj` as its keys and with the respective values recursively converted to natively--json-compatible type according to type `_T`;
 - if `t` is `OrderedDict[str, _T]`, an ordered dictionary is returned containing the keys of `obj` as its keys and with the respective values recursively converted to natively--json-compatible type according to type `_T`;
 
-For the purpose of this library, **natively--json-compatible** types are: `bool`, `int`, `float`, `str`, `NoneType`, `list`, `dict` and `collections.OrderedDict`.
+If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised. If `obj` is not of type `t` according to `is_instance(obj, t)` then `TypeError` is raised.
+
+For the purposes of this library, natively--json-compatible types are: `bool`, `int`, `float`, `str`, `NoneType`, `list`, `dict` and `collections.OrderedDict`.
+
+
+## decoding module
+
+### from_json_obj
+
+```python
+def from_json_obj(obj: Any, t: Any) -> Any:
+    ...
+````
+
+The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable type `t` and converts `obj` into an equivalent object of type `t`. The conversion goes as follows:
+
+- if `t in (bool, int, float, str)`, `obj` is returned unaltered (`TypeError` is raised if `not isinstance(obj, t)`);
+- if `t in (None, NoneType)`, `None` is returned (`TypeError` is raised if `obj is not None`);
+- if `t is ...`, `...` is returned (`TypeError` is raised if `obj is not None`);
+- if `is_namedtuple(t)`, the key values of the (ordered) dictionary `obj` are recursively converted to the types of the fields of `t` with the same keys and any missing key is replaced with it default value in `t`, if present (`TypeError` is raised if `obj` is not a (ordered) dictionary, if `obj` contains keys which are not fields of `t`, or if a non-default field of `t` does not appear as a key in `obj`);
+- if `t` is `Union[_T1,..._TN]` then conversion of `obj` to each type `_Tj` listed in the union is attempted in order and the first successful result is returned (`TypeError` is raised if no conversion is successful);
+- if `t` is `Literal` then `obj` is returned unaltered (`TypeError` is raised if `not is_instance(obj, t)`);
+- if `t` is `List[_T]` then all members of `obj` are recursively converted to type `_T` and a list of the results is returned (`TypeError` is raised if `obj` is not a list);
+- if `t` is `Deque[_T]` then all members of `obj` are recursively converted to type `_T` and a deque of the results is returned (`TypeError` is raised if `obj` is not a list);
+- if `t` is `Set[_T]` then all members of `obj` are recursively converted to type `_T` and a set of the results is returned (`TypeError` is raised if `obj` is not a list, order preservation is not guaranteed);
+- if `t` is `FrozenSet[_T]` then all members of `obj` are recursively converted to type `_T` and a frozenset of the results is returned (`TypeError` is raised if `obj` is not a list, order preservation is not guaranteed);
+- if `t` is `Tuple[_T,...]` then all members of `obj` are recursively converted to type `_T` and a tuple of the results is returned (`TypeError` is raised if `obj` is not a list);
+- if `t` is `Tuple[_TN,...,_TN]` then all members of `obj` are recursively converted to the respective types `_Tj` and a tuple of the results is returned (`TypeError` is raised if `obj` is not a list or if the length does not match the required length for the tuple);
+- if `t` is `Dict[str, _T]` then all values of `obj` are recursively converted to type `_T` and a dict of the results (with the same keys of `obj`) is returned (`TypeError` is raised if `obj` is not a (ordered) dictionary or if any of its keys is not a string);
+- if `t` is `OrderedDict[str, _T]` then all values of `obj` are recursively converted to type `_T` and a ordered dict of the results (with the same keys of `obj`) is returned (`TypeError` is raised if `obj` is not a ordered dictionary or if any of its keys is not a string);
+
+If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised.
