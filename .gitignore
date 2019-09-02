@@ -103,3 +103,5 @@ venv.bak/
 # mypy
 .mypy_cache/
 run-pytest-cov.bat
+pypi-distrib-upload.bat
+pypi-distrib-archives.bat
