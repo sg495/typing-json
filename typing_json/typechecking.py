@@ -2,6 +2,7 @@
 
 from typing import Any, Union, Optional
 from collections import deque, OrderedDict
+from collections.abc import Mapping
 from typing_extensions import Literal
 
 TYPECHECKABLE_BASE_TYPES = (bool, int, float, complex, str, bytes, bytearray, memoryview,
@@ -17,7 +18,7 @@ def is_typecheckable(t: Any) -> bool:
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         if t.__origin__ in (list, tuple, set, frozenset, dict,
-                            deque, OrderedDict, Union, Optional):
+                            deque, OrderedDict, Union, Optional, Mapping):
             return all(is_typecheckable(s) for s in t.__args__)
         if t.__origin__ is Literal:
             return all(isinstance(s, TYPECHECKABLE_BASE_TYPES) or s in (None, ..., NotImplemented, Any) for s in t.__args__) # pylint:disable=line-too-long
@@ -87,6 +88,14 @@ def is_instance(obj: Any, t: Any) -> bool:
             return all(is_instance(x, t.__args__[0]) for x in obj)
         if t.__origin__ is OrderedDict: # OrderedDict[_T, _S]
             if not isinstance(obj, (OrderedDict)):
+                return False
+            if not all(is_instance(x, t.__args__[0]) for x in obj):
+                return False
+            if not all(is_instance(obj[x], t.__args__[1]) for x in obj):
+                return False
+            return True
+        if t.__origin__ is Mapping: # Mapping[_T, _S]
+            if not isinstance(obj, (dict, OrderedDict)):
                 return False
             if not all(is_instance(x, t.__args__[0]) for x in obj):
                 return False

@@ -2,6 +2,7 @@
 
 from typing import Any, Union, Optional, Tuple
 from collections import deque, OrderedDict
+from collections.abc import Mapping
 from typing_extensions import Literal
 from typing_json.typechecking import is_typecheckable, is_instance, is_namedtuple
 
@@ -32,7 +33,7 @@ def is_json_encodable(t: Any) -> bool:
                 return all(is_json_encodable(s) for s in t.__args__)
         if t.__origin__ is Union:
             return all(is_json_encodable(s) for s in t.__args__)
-        if t.__origin__ in (dict, OrderedDict):
+        if t.__origin__ in (dict, OrderedDict, Mapping):
             return t.__args__[0] == str and is_json_encodable(t.__args__[1])
         if t.__origin__ is Literal:
             return all(isinstance(s, JSON_BASE_TYPES+(type(None),)) for s in t.__args__)
@@ -70,7 +71,7 @@ def to_json_obj(obj: Any, t: Any) -> Any:
                 return [to_json_obj(x, t.__args__[0]) for x in obj]
             else:
                 return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
-        if t.__origin__ is dict:
+        if t.__origin__ in (dict, Mapping):
             return {field: to_json_obj(obj[field], t.__args__[1]) for field in obj}
         if t.__origin__ is OrderedDict:
             new_ordered_dict = OrderedDict() # type:ignore

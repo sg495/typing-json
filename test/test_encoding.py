@@ -23,7 +23,7 @@ BASE_TYPES_INHERITANCE: Dict[Any, List[Any]] = {
 
 def contains_non_json_encodable_dict(t: Any) -> bool:
     # pylint:disable=missing-docstring,invalid-name,line-too-long
-    if hasattr(t, "__origin__") and t.__origin__ in (dict, collections.OrderedDict) and t.__args__[0] != str:
+    if hasattr(t, "__origin__") and t.__origin__ in (dict, collections.OrderedDict, collections.abc.Mapping) and t.__args__[0] != str:
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         return any(contains_non_json_encodable_dict(s) for s in t.__args__)

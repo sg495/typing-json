@@ -1,7 +1,7 @@
 """ Tests for the typing_json.typechecking sub-module. """
 
 import typing
-from typing import NamedTuple, List, Tuple, Set, FrozenSet, Dict, Union, Any, Deque, Optional
+from typing import NamedTuple, List, Tuple, Set, FrozenSet, Dict, Union, Any, Deque, Optional, Mapping
 from typing_extensions import Literal
 import collections
 from collections import namedtuple, deque, ChainMap, Counter, UserDict, UserList, UserString
@@ -103,25 +103,42 @@ def make_generic_collection_types(rec_type_dict, rec_inherit_dict):
             for s in rec_type_dict:
                 # dicts
                 type_dict[Dict[t, s]] = dict({rec_type_dict[t]: rec_type_dict[s]}) # type:ignore
-                inherit_dict[Dict[t, s]] = [dict] # type:ignore
+                inherit_dict[Dict[t, s]] = [dict, Mapping[t, s]] # type:ignore
                 if t in rec_inherit_dict and s in rec_inherit_dict:
                     inherit_dict[Dict[t, s]] += [Dict[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[Dict[t, s]] += [Mapping[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
                 if t in rec_inherit_dict:
                     inherit_dict[Dict[t, s]] += [Dict[a, s] for a in rec_inherit_dict[t]] # type:ignore
+                    inherit_dict[Dict[t, s]] += [Mapping[a, s] for a in rec_inherit_dict[t]] # type:ignore
                 if s in rec_inherit_dict:
                     inherit_dict[Dict[t, s]] += [Dict[t, b] for b in rec_inherit_dict[s]] # type:ignore
-                # OrderedDicts
+                    inherit_dict[Dict[t, s]] += [Mapping[t, b] for b in rec_inherit_dict[s]] # type:ignore
+                # OrderedDicts and Mapping
                 type_dict[typing.OrderedDict[t, s]] = collections.OrderedDict({rec_type_dict[t]: rec_type_dict[s]}) # type:ignore
-                inherit_dict[typing.OrderedDict[t, s]] = [collections.OrderedDict, dict, Dict[t, s]] # type:ignore
+                type_dict[Mapping[t, s]] = collections.OrderedDict({rec_type_dict[t]: rec_type_dict[s]}) # type:ignore
+                inherit_dict[typing.OrderedDict[t, s]] = [collections.OrderedDict, dict, Dict[t, s], Mapping[t, s]] # type:ignore
+                inherit_dict[Mapping[t, s]] = [collections.OrderedDict, dict, Dict[t, s], typing.OrderedDict[t, s]] # type:ignore
                 if t in rec_inherit_dict and s in rec_inherit_dict:
                     inherit_dict[typing.OrderedDict[t, s]] += [typing.OrderedDict[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
                     inherit_dict[typing.OrderedDict[t, s]] += [Dict[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[typing.OrderedDict[t, s]] += [Mapping[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [typing.OrderedDict[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [Dict[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [Mapping[a, b] for a in rec_inherit_dict[t] for b in rec_inherit_dict[s]] # type:ignore
                 if t in rec_inherit_dict:
                     inherit_dict[typing.OrderedDict[t, s]] += [typing.OrderedDict[a, s] for a in rec_inherit_dict[t]] # type:ignore
                     inherit_dict[typing.OrderedDict[t, s]] += [Dict[a, s] for a in rec_inherit_dict[t]] # type:ignore
+                    inherit_dict[typing.OrderedDict[t, s]] += [Mapping[a, s] for a in rec_inherit_dict[t]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [typing.OrderedDict[a, s] for a in rec_inherit_dict[t]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [Dict[a, s] for a in rec_inherit_dict[t]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [Mapping[a, s] for a in rec_inherit_dict[t]] # type:ignore
                 if s in rec_inherit_dict:
                     inherit_dict[typing.OrderedDict[t, s]] += [typing.OrderedDict[t, b] for b in rec_inherit_dict[s]] # type:ignore
                     inherit_dict[typing.OrderedDict[t, s]] += [Dict[t, b] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[typing.OrderedDict[t, s]] += [Mapping[t, b] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [typing.OrderedDict[t, b] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [Dict[t, b] for b in rec_inherit_dict[s]] # type:ignore
+                    inherit_dict[Mapping[t, s]] += [Mapping[t, b] for b in rec_inherit_dict[s]] # type:ignore
         except TypeError:
             ... # do nothing, this just means t was not hashable
     return (type_dict, inherit_dict)

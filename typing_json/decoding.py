@@ -2,6 +2,7 @@
 
 from typing import Any, Union
 from collections import deque, OrderedDict
+from collections.abc import Mapping
 from typing_extensions import Literal
 from typing_json.typechecking import is_instance, is_namedtuple
 from typing_json.encoding import JSON_BASE_TYPES, is_json_encodable
@@ -104,7 +105,7 @@ def from_json_obj(obj: Any, t: Any) -> Any:
                 return_val = tuple(from_json_obj(x, t.__args__[i]) for i, x in enumerate(obj))
                 assert is_instance(return_val, t)
                 return return_val
-        if t.__origin__ is dict:
+        if t.__origin__ in (dict, Mapping):
             if not isinstance(obj, (dict, OrderedDict)):
                 raise TypeError("Object %s is not dict or OrderedDict (t=%s)."%(str(obj), str(t)))
             converted_dict = dict() # type:ignore
