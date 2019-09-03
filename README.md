@@ -23,7 +23,7 @@ The function `is_typecheckable(t)` returns `True` if and only if the `t` argumen
 
 - the standard types `bool`, `int`, `float`, `complex`, `str`, `bytes`, `bytearray`, `memoryview`, `list`, `tuple`, `range`, `slice`, `set`, `frozenset`, `dict`, `type`, `NoneType`, `Ellipsis`, `NotImplemented` and `object` (as well as the value `None`, treated equivalently to `NoneType`);
 - the `collections` types `deque` and `OrderedDict`;
-- the `typing` types `Any`, `List[_T]`, `Tuple[_T1,...]` (single-type variadic tuple), `Tuple[_T1,...,_TN]` (multi-type fixed arity tuple), `Set[_T]`, `FrozenSet[_T]`, `Dict[_T, _S]`, `OrderedDict[_T, _S]`, `Deque[_T]`, `Optional[_T]`, `Union[_T1,...,_TN]` where `_T`, `_S`, `_T1`, ..., `_TN` are themselves supported types;
+- the `typing` types `Any`, `List[_T]`, `Tuple[_T1,...]` (single-type variadic tuple), `Tuple[_T1,...,_TN]` (multi-type fixed arity tuple), `Set[_T]`, `FrozenSet[_T]`, `Dict[_T, _S]`, `OrderedDict[_T, _S]`, `Mapping[_T, _S]`, `Deque[_T]`, `Optional[_T]`, `Union[_T1,...,_TN]` where `_T`, `_S`, `_T1`, ..., `_TN` are themselves supported types;
 - the `typing_extensions` type `Literal[_v1, ..., _vn]` where `_v1`, ..., `_vn` are immutable (comparison is performed using `obj is _vj`, not `obj == _vj`);
 - types created using `typing.NamedTuple` using typecheckable field types;
 Arbitrary classes are currently not supported, regardless of type annotations. Support for types created using `collections.namedtuple` is not planned.
@@ -61,7 +61,7 @@ The function `is_json_encodable(t)` returns `True` if and only if `t` is a json-
 
 - the standard types `bool`, `int`, `float`, `str`, `NoneType` and `Ellipsis` (as well as the value `None`, treated equivalently to `NoneType`);
 - any `t` such that `is_namedtuple(t)` and such that all field types are json-encodable themselves;
-- the `typing` types `List[_T]`, `Set[_T]`, `FrozenSet[_T]`, `Deque[_T]`, `Tuple[_T,...]`, `Tuple[_T1,...,_TN]`, `Dict[str, _T]`, `OrderedDict[str, _T]`, `Union[_T1,...,_TN]`, `Optional[_T]`where `_T`, `_T1`, ..., `_TN` are themselves json-encodable types;
+- the `typing` types `List[_T]`, `Set[_T]`, `FrozenSet[_T]`, `Deque[_T]`, `Tuple[_T,...]`, `Tuple[_T1,...,_TN]`, `Dict[str, _T]`, `OrderedDict[str, _T]`, `Mapping[str, _T]`, `Union[_T1,...,_TN]`, `Optional[_T]`where `_T`, `_T1`, ..., `_TN` are themselves json-encodable types;
 - the `typing_extensions` type `Literal[_v1,...,_vn]`, where where each `_vj in [_v1,...,_vn]` is of type `bool`, `int`, `float`, `str` or `NoneType`.
 
 Future support is planned for more `typing` and `typing_extensions` types.
@@ -84,7 +84,7 @@ The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable ty
 - if `t` is `Literal[_v1,...,_vN]`, `obj` is returned unaltered;
 - if `t` is one of `List[_T]`, `Set[_T]`, `FrozenSet[_T]`, `Deque[_T]`, `Tuple[_T,...]` a list is returned, containing all elements of `obj` recursively converted to natively--json-compatible objects using type `_T` for the conversion;
 - if `t` is `Tuple[_T1,...,_TN]`, a list is returned, containing all elements of `obj` recursively converted to natively--json-compatible objects using types `_T1`,...,`_TN` for the conversion of the elements `x1`,...,`xN` of `obj`;
-- if `t` is `Dict[str, _T]`, a dictionary is returned containing the keys of `obj` as its keys and with the respective values recursively converted to natively--json-compatible type according to type `_T`;
+- if `t` is `Dict[str, _T]` or `Mapping[str, _T]`, a dictionary is returned containing the keys of `obj` as its keys and with the respective values recursively converted to natively--json-compatible type according to type `_T`;
 - if `t` is `OrderedDict[str, _T]`, an ordered dictionary is returned containing the keys of `obj` as its keys and with the respective values recursively converted to natively--json-compatible type according to type `_T`;
 
 If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised. If `obj` is not of type `t` according to `is_instance(obj, t)` then `TypeError` is raised.
@@ -115,7 +115,7 @@ The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable ty
 - if `t` is `FrozenSet[_T]` then all members of `obj` are recursively converted to type `_T` and a frozenset of the results is returned (`TypeError` is raised if `obj` is not a list, order preservation is not guaranteed);
 - if `t` is `Tuple[_T,...]` then all members of `obj` are recursively converted to type `_T` and a tuple of the results is returned (`TypeError` is raised if `obj` is not a list);
 - if `t` is `Tuple[_TN,...,_TN]` then all members of `obj` are recursively converted to the respective types `_Tj` and a tuple of the results is returned (`TypeError` is raised if `obj` is not a list or if the length does not match the required length for the tuple);
-- if `t` is `Dict[str, _T]` then all values of `obj` are recursively converted to type `_T` and a dict of the results (with the same keys of `obj`) is returned (`TypeError` is raised if `obj` is not a (ordered) dictionary or if any of its keys is not a string);
+- if `t` is `Dict[str, _T]` or `Mapping[str, _T]` then all values of `obj` are recursively converted to type `_T` and a dict of the results (with the same keys of `obj`) is returned (`TypeError` is raised if `obj` is not a (ordered) dictionary or if any of its keys is not a string);
 - if `t` is `OrderedDict[str, _T]` then all values of `obj` are recursively converted to type `_T` and a ordered dict of the results (with the same keys of `obj`) is returned (`TypeError` is raised if `obj` is not a ordered dictionary or if any of its keys is not a string);
 
 If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised.
