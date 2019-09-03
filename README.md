@@ -3,10 +3,11 @@
 [![codecov](https://codecov.io/gh/sg495/typing-json/graph/badge.svg)](https://codecov.io/gh/sg495/typing-json/)
 [![Generic badge](https://img.shields.io/badge/python-3.7.4+-green.svg)](https://shields.io/)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+[![PyPI version shields.io](https://img.shields.io/pypi/v/typing-json.svg)](https://pypi.python.org/pypi/typing-json/)
+[![PyPI status](https://img.shields.io/pypi/status/typing-json.svg)](https://pypi.python.org/pypi/typing-json/)
 [![Generic badge](https://img.shields.io/badge/license-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
 Add typing support to python JSON serialization.
-
 
 ## typechecking module
 
