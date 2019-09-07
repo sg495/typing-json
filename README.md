@@ -9,34 +9,62 @@
 
 Add typing support to python JSON serialization.
 
-## typechecking module
+## typechecking
 
 The typechecking module contains utilities for dynamic typechecking which support relevant types from the typing and typing_extensions libraries.
+
+### is_hashable
+
+```python
+def is_hashable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -> bool:
+    ...
+````
+
+The function `is_hashable(t)` returns `True` if and only if the `t` argument is one of the types considered to be hashable for the purposes of dynamic typechecking in this package. Types currently deemed to be hashable by this function:
+
+- the standard types `bool`, `int`, `float`, `complex`, `str`, `bytes`, `range`, `slice`, `type` and `NoneType` (as well as the value `None`, treated equivalently to `NoneType`);
+- the `typing` types `Tuple[_T1,...]` (single-type variadic tuple), `Tuple[_T1,...,_TN]` (multi-type fixed arity tuple), `FrozenSet[_T]`, `Optional[_T]`, `Union[_T1,...,_TN]` where `_T`, `_S`, `_T1`, ..., `_TN` are themselves hashable types;
+- the `typing_extensions` type `Literal[_v1, ..., _vn]` where `_v1`, ..., `_vn` are of hashable standard type (see above);
+- types created using `typing.NamedTuple` using hashable field types;
+
+Support for enum types and NewType is planned (see pull request [#5](https://github.com/sg495/typing-json/pull/5)).
+
+If present, `failure_callback` is called to log all reasons why `t` fails to be hashable, in the order in which they arise.
+
+
 
 ### is_typecheckable
 
 ```python
-def is_typecheckable(t: Any) -> bool:
+def is_typecheckable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -> bool:
     ...
 ````
 
 The function `is_typecheckable(t)` returns `True` if and only if the `t` argument is one of the types supported for dynamic typechecking using the `is_instance(obj, t)` function from the same module. Currently supported types:
 
-- the standard types `bool`, `int`, `float`, `complex`, `str`, `bytes`, `bytearray`, `memoryview`, `list`, `tuple`, `range`, `slice`, `set`, `frozenset`, `dict`, `type`, `NoneType`, `Ellipsis`, `NotImplemented` and `object` (as well as the value `None`, treated equivalently to `NoneType`);
+- the standard types `bool`, `int`, `float`, `complex`, `str`, `bytes`, `bytearray`, `memoryview`, `list`, `tuple`, `range`, `slice`, `set`, `frozenset`, `dict`, `type`, `NoneType` and `object` (as well as the value `None`, treated equivalently to `NoneType`);
 - the `collections` types `deque` and `OrderedDict`;
 - the `typing` types `Any`, `List[_T]`, `Tuple[_T1,...]` (single-type variadic tuple), `Tuple[_T1,...,_TN]` (multi-type fixed arity tuple), `Set[_T]`, `FrozenSet[_T]`, `Dict[_T, _S]`, `OrderedDict[_T, _S]`, `Mapping[_T, _S]`, `Deque[_T]`, `Optional[_T]`, `Union[_T1,...,_TN]` where `_T`, `_S`, `_T1`, ..., `_TN` are themselves supported types;
-- the `typing_extensions` type `Literal[_v1, ..., _vn]` where `_v1`, ..., `_vn` are immutable (comparison is performed using `obj is _vj`, not `obj == _vj`);
+- the `typing_extensions` type `Literal[_v1, ..., _vn]` where `_v1`, ..., `_vn` are of typecheckable standard of `collections` type (see above);
 - types created using `typing.NamedTuple` using typecheckable field types;
-Arbitrary classes are currently not supported, regardless of type annotations. Support for types created using `collections.namedtuple` is not planned.
+
+Arbitrary classes are currently not supported, regardless of type annotations. Support for types created using `collections.namedtuple` is not planned. Support for enum types and NewType is planned (see pull request [#5](https://github.com/sg495/typing-json/pull/5)).
+
+If present, `failure_callback` is called to log all reasons why `t` fails to be typecheckable, in the order in which they arise.
+
+
 
 ### is_instance
 
 ```python
-def is_instance(obj: Any, t: Any) -> bool:
+def is_instance(obj: Any, t: Any, failure_callback: Optional[Callable[[str], None]] = None) -> bool:
     ...
 ````
 
 The function `is_instance(obj, t)` returns `True` if and only if the `obj` argument is of type `t`. If `t` is not typecheckable according to `is_typecheckable(t)` then `TypeError` is raised.
+
+If present, `failure_callback` is called to log all reasons why `obj` fails to be an instance of `t`, in the order in which they arise.
+
 
 
 ### is_namedtuple
@@ -48,24 +76,28 @@ def is_namedtuple(t: Any) -> bool:
 
 The function `is_namedtuple(t)` returns `True` if the `obj` argument was created using `typing.NamedTuple` and all field types are typecheckable. It is currently possible to fool this method by using `collections.namedtuple` and manually adding a `_field_types:` dictionary with string keys and typecheckable types.
 
+If present, `failure_callback` is called to log all reasons why `t` fails to be a NamedTuple, in the order in which they arise.
 
-## encoding module
+
+## encoding
 
 ### is_json_encodable
 
 ```python
-def is_json_encodable(t: Any) -> bool:
+def is_json_encodable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -> bool:
     ...
 ````
 
 The function `is_json_encodable(t)` returns `True` if and only if `t` is a json-encodable type according to this package. At present, the following are json-encodable types:
 
-- the standard types `bool`, `int`, `float`, `str`, `NoneType` and `Ellipsis` (as well as the value `None`, treated equivalently to `NoneType`);
+- the standard types `bool`, `int`, `float`, `str`, and `NoneType` (as well as the value `None`, treated equivalently to `NoneType`);
 - any `t` such that `is_namedtuple(t)` and such that all field types are json-encodable themselves;
 - the `typing` types `List[_T]`, `Set[_T]`, `FrozenSet[_T]`, `Deque[_T]`, `Tuple[_T,...]`, `Tuple[_T1,...,_TN]`, `Dict[str, _T]`, `OrderedDict[str, _T]`, `Mapping[str, _T]`, `Union[_T1,...,_TN]`, `Optional[_T]`where `_T`, `_T1`, ..., `_TN` are themselves json-encodable types;
 - the `typing_extensions` type `Literal[_v1,...,_vn]`, where where each `_vj in [_v1,...,_vn]` is of type `bool`, `int`, `float`, `str` or `NoneType`.
 
-Future support is planned for more `typing` and `typing_extensions` types.
+Future support is planned for more `typing` and `typing_extensions` types, including enum types and NewType (see pull request [#5](https://github.com/sg495/typing-json/pull/5)).
+
+If present, `failure_callback` is called to log all reasons why `t` fails to be json-encodable, in the order in which they arise.
 
 
 ### to_json_obj
@@ -85,15 +117,28 @@ The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable ty
 - if `t` is `Literal[_v1,...,_vN]`, `obj` is returned unaltered;
 - if `t` is one of `List[_T]`, `Set[_T]`, `FrozenSet[_T]`, `Deque[_T]`, `Tuple[_T,...]` a list is returned, containing all elements of `obj` recursively converted to natively--json-compatible objects using type `_T` for the conversion;
 - if `t` is `Tuple[_T1,...,_TN]`, a list is returned, containing all elements of `obj` recursively converted to natively--json-compatible objects using types `_T1`,...,`_TN` for the conversion of the elements `x1`,...,`xN` of `obj`;
-- if `t` is `Dict[str, _T]` or `Mapping[str, _T]`, a dictionary is returned containing the keys of `obj` as its keys and with the respective values recursively converted to natively--json-compatible type according to type `_T`;
-- if `t` is `OrderedDict[str, _T]`, an ordered dictionary is returned containing the keys of `obj` as its keys and with the respective values recursively converted to natively--json-compatible type according to type `_T`;
+- if `t` is `Dict[_S, _T]` or `Mapping[_S, _T]`, a dictionary is returned with keys and values recursively converted to natively--json-compatible type according to types `_S` and `_T` respectively, and the string version of the keys json is used if they are not one of `bool`, `int`, `float`, `str` or `NoneType`;
+- if `t` is `OrderedDict[_S, _T]`, an dictionary is returned with keys and values recursively converted to natively--json-compatible type according to types `_S` and `_T` respectively, and the string version of the keys json is used if they are not one of `bool`, `int`, `float`, `str` or `NoneType`;
 
 If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised. If `obj` is not of type `t` according to `is_instance(obj, t)` then `TypeError` is raised.
 
 For the purposes of this library, natively--json-compatible types are: `bool`, `int`, `float`, `str`, `NoneType`, `list`, `dict` and `collections.OrderedDict`.
 
 
-## decoding module
+### dump and dumps
+
+```python
+def dump(obj: Any, encoded_type: Any, ...):
+    ...
+
+def dumps(obj: Any, encoded_type: Any, ...):
+    ...
+````
+
+The functions `dump` and `dumps` of `typing_json` mimic the functions `dump` and `dumps` of the standard `json` library, first performing a conversion of `obj` from json-encodable type `encoded_type` to a json object before dumping.
+
+
+## decoding
 
 ### from_json_obj
 
@@ -116,7 +161,20 @@ The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable ty
 - if `t` is `FrozenSet[_T]` then all members of `obj` are recursively converted to type `_T` and a frozenset of the results is returned (`TypeError` is raised if `obj` is not a list, order preservation is not guaranteed);
 - if `t` is `Tuple[_T,...]` then all members of `obj` are recursively converted to type `_T` and a tuple of the results is returned (`TypeError` is raised if `obj` is not a list);
 - if `t` is `Tuple[_TN,...,_TN]` then all members of `obj` are recursively converted to the respective types `_Tj` and a tuple of the results is returned (`TypeError` is raised if `obj` is not a list or if the length does not match the required length for the tuple);
-- if `t` is `Dict[str, _T]` or `Mapping[str, _T]` then all values of `obj` are recursively converted to type `_T` and a dict of the results (with the same keys of `obj`) is returned (`TypeError` is raised if `obj` is not a (ordered) dictionary or if any of its keys is not a string);
-- if `t` is `OrderedDict[str, _T]` then all values of `obj` are recursively converted to type `_T` and a ordered dict of the results (with the same keys of `obj`) is returned (`TypeError` is raised if `obj` is not a ordered dictionary or if any of its keys is not a string);
+- if `t` is `Dict[_S, _T]` or `Mapping[_S, _T]` then all keys and values of `obj` are recursively converted to types `_S` and `_T` respectively (if `_S` is not one of `bool`, `int`, `float`, `str`, `NoneType` or `None`, the keys are first json-parsed from strings), and a dict of the results is returned (`TypeError` is raised if `obj` is not a (ordered) dictionary);
+- if `t` is `OrderedDict[_S, _T]`  then all keys and values of `obj` are recursively converted to types `_S` and `_T` respectively (if `_S` is not one of `bool`, `int`, `float`, `str`, `NoneType` or `None`, the keys are first json-parsed from strings), and an ordered dict of the results is returned (`TypeError` is raised if `obj` is not an ordered dictionary);
 
 If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised.
+
+
+### load and loads
+
+```python
+def load(fp, decoded_type: Any, ...) -> Any:
+    ...
+
+def dumps(s: str, decoded_type: Any, ...) -> Any:
+    ...
+````
+
+The functions `load` and `loads` of `typing_json` mimic the functions `load` and `loads` of the standard `json` library, performing a conversion of the loaded json object to json-encodable type `decoded_type` before returning.

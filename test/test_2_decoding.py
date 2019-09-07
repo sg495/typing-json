@@ -6,9 +6,9 @@ import collections
 from collections import deque
 from typing_extensions import Literal
 
-from typing_json.encoding import is_json_encodable, to_json_obj, JSON_BASE_TYPES
+from typing_json.encoding import to_json_obj
 from typing_json.decoding import from_json_obj
-from .test_typechecking import make_generic_collection_types
+from .test_0_typechecking import make_generic_collection_types
 
 BASE_TYPES: Dict[Any, Any] = {
     bool: True, # bool inherits from int, see https://www.python.org/dev/peps/pep-0285/
@@ -16,7 +16,6 @@ BASE_TYPES: Dict[Any, Any] = {
     float: 1.0,
     str: "hello",
     type(None): None,
-    ...: ...,
 }
 
 BASE_TYPES_INHERITANCE: Dict[Any, List[Any]] = {
@@ -63,6 +62,10 @@ def test_from_json_obj():
     assert from_json_obj(to_json_obj(d, Dict[str, str]), Dict[str, str]) == d
     od = collections.OrderedDict(d)
     assert from_json_obj(to_json_obj(od, typing.OrderedDict[str, str]), typing.OrderedDict[str, str]) == od
+    d = {frozenset(["hi", "my"]): "hi", frozenset(["value", "money"]): "zero"}
+    assert from_json_obj(to_json_obj(d, Dict[FrozenSet[str], str]), Dict[FrozenSet[str], str]) == d
+    od = collections.OrderedDict(d)
+    assert from_json_obj(to_json_obj(od, typing.OrderedDict[FrozenSet[str], str]), typing.OrderedDict[FrozenSet[str], str]) == od
 
 def test_from_json_obj_errors():
     # pylint:disable=too-many-branches, too-many-statements

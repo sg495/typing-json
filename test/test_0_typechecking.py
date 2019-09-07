@@ -6,7 +6,7 @@ from typing_extensions import Literal
 import collections
 from collections import namedtuple, deque, ChainMap, Counter, UserDict, UserList, UserString
 import sys
-from typing_json.typechecking import is_typecheckable, is_instance, is_namedtuple
+from typing_json.typechecking import is_typecheckable, is_instance, is_namedtuple, is_hashable
 
 BASE_TYPES: Dict[Any, Any] = {
     bool: True, # bool inherits from int, see https://www.python.org/dev/peps/pep-0285/
@@ -26,8 +26,6 @@ BASE_TYPES: Dict[Any, Any] = {
     dict: {"str": "hello", "int": 0},
     type: str,
     None: None,
-    ...: ...,
-    NotImplemented : NotImplemented,
 }
 
 BASE_TYPES_INHERITANCE: Dict[Any, List[Any]] = {
@@ -43,6 +41,20 @@ COLLECTION_TYPES_INHERITANCE: Dict[Any, List[Any]] = {
     collections.OrderedDict: [dict],
 }
 
+class NamedTupleExampleT(NamedTuple):
+    name: Tuple[str, ...]
+    value: Union[int, float]
+
+
+class NonHashableNamedTupleExampleT(NamedTuple):
+    name: List[str]
+    value: Union[int, float]
+
+
+def failure_callback(message: str) -> None:
+    print(message)
+
+
 def make_generic_collection_types(rec_type_dict, rec_inherit_dict):
     if not rec_type_dict and not rec_inherit_dict:
         type_dict = {**BASE_TYPES, **COLLECTION_TYPES}
@@ -52,8 +64,6 @@ def make_generic_collection_types(rec_type_dict, rec_inherit_dict):
     type_dict = {}
     inherit_dict = {}
     for t in rec_type_dict:
-        if t in (Ellipsis, NotImplemented):
-            continue
         # lists
         type_dict[List[t]] = list([rec_type_dict[t], rec_type_dict[t]]) # type:ignore
         inherit_dict[List[t]] = [list] # type:ignore
@@ -88,6 +98,13 @@ def make_generic_collection_types(rec_type_dict, rec_inherit_dict):
         inherit_dict[Deque[t]] = [deque] # type:ignore
         if t in rec_inherit_dict:
             inherit_dict[Deque[t]] += [Deque[s] for s in rec_inherit_dict[t]] # type:ignore
+        # namedtuple
+        a = NamedTupleExampleT(("hi", "bye"), 1.1)
+        type_dict[NamedTupleExampleT] = a
+        inherit_dict[NamedTupleExampleT] = [tuple]
+        b = NonHashableNamedTupleExampleT(["hi", "bye"], 1.1)
+        type_dict[NonHashableNamedTupleExampleT] = b
+        inherit_dict[NonHashableNamedTupleExampleT] = [tuple]
         try:
             hash(rec_type_dict[t])
             # sets
@@ -139,6 +156,12 @@ def make_generic_collection_types(rec_type_dict, rec_inherit_dict):
                     inherit_dict[Mapping[t, s]] += [typing.OrderedDict[t, b] for b in rec_inherit_dict[s]] # type:ignore
                     inherit_dict[Mapping[t, s]] += [Dict[t, b] for b in rec_inherit_dict[s]] # type:ignore
                     inherit_dict[Mapping[t, s]] += [Mapping[t, b] for b in rec_inherit_dict[s]] # type:ignore
+                if t in (bool, int, bytes, str, None) and s in (bool, int, bytes, str, None):
+                    type_dict[Literal[rec_type_dict[t], rec_type_dict[s]]] = rec_type_dict[s]
+                    inherit_dict[Literal[rec_type_dict[t], rec_type_dict[s]]] = [s]
+                    if s in rec_inherit_dict:
+                        inherit_dict[Literal[rec_type_dict[t], rec_type_dict[s]]] += rec_inherit_dict[s]
+
         except TypeError:
             ... # do nothing, this just means t was not hashable
     return (type_dict, inherit_dict)
@@ -146,15 +169,17 @@ def make_generic_collection_types(rec_type_dict, rec_inherit_dict):
 def _test_types(type_dict, inherit_dict):
     for t in type_dict:
         for s in type_dict:
-            if t == s:
-                assert is_instance(type_dict[s], t)
+            if hasattr(t, "__origin__") and t.__origin__ == Literal:
+                assert True # skip this case
+            elif t == s:
+                assert is_instance(type_dict[s], t, failure_callback)
             elif s in inherit_dict and t in inherit_dict[s]:
-                assert is_instance(type_dict[s], t)
+                assert is_instance(type_dict[s], t, failure_callback)
             else:
-                assert not is_instance(type_dict[s], t)
+                assert not is_instance(type_dict[s], t, failure_callback)
     for t in type_dict:
-        assert is_instance(type_dict[t], object)
-        assert is_instance(type_dict[t], Any)
+        assert is_instance(type_dict[t], object, failure_callback)
+        assert is_instance(type_dict[t], Any, failure_callback)
 
 def test_is_instance_base_types():
     type_dict = {**BASE_TYPES, **COLLECTION_TYPES}
@@ -176,8 +201,8 @@ def test_is_instance_optional():
     for t in type_dict:
         if t in (Ellipsis, NotImplemented):
             continue
-        assert is_instance(None, Optional[t])
-        assert is_instance(type_dict[t], Optional[t])
+        assert is_instance(None, Optional[t], failure_callback)
+        assert is_instance(type_dict[t], Optional[t], failure_callback)
 
 def test_is_instance_union():
     type_dict = {**BASE_TYPES, **COLLECTION_TYPES}
@@ -187,8 +212,8 @@ def test_is_instance_union():
         for s in type_dict:
             if s in (Ellipsis, NotImplemented):
                 continue
-            assert is_instance(type_dict[t], Union[t, s])
-            assert is_instance(type_dict[s], Union[t, s])
+            assert is_instance(type_dict[t], Union[t, s], failure_callback)
+            assert is_instance(type_dict[s], Union[t, s], failure_callback)
     for t in type_dict:
         if t in (Ellipsis, NotImplemented):
             continue
@@ -198,107 +223,134 @@ def test_is_instance_union():
             for u in type_dict:
                 if u in (Ellipsis, NotImplemented):
                     continue
-                assert is_instance(type_dict[t], Union[t, s, u])
-                assert is_instance(type_dict[s], Union[t, s, u])
-                assert is_instance(type_dict[u], Union[t, s, u])
+                assert is_instance(type_dict[t], Union[t, s, u], failure_callback)
+                assert is_instance(type_dict[s], Union[t, s, u], failure_callback)
+                assert is_instance(type_dict[u], Union[t, s, u], failure_callback)
 
 def test_is_instance_literal():
     type_dict = {**BASE_TYPES, **COLLECTION_TYPES}
     for t in type_dict:
         for s in type_dict:
-            assert is_instance(type_dict[t], Literal[type_dict[t], type_dict[s]])
-            assert is_instance(type_dict[s], Literal[type_dict[t], type_dict[s]])
+            assert is_instance(type_dict[t], Literal[type_dict[t], type_dict[s]], failure_callback)
+            assert is_instance(type_dict[s], Literal[type_dict[t], type_dict[s]], failure_callback)
     for t in type_dict:
         for s in type_dict:
             for u in type_dict:
-                assert is_instance(type_dict[t], Literal[type_dict[t], type_dict[s], type_dict[u]])
-                assert is_instance(type_dict[s], Literal[type_dict[t], type_dict[s], type_dict[u]])
-                assert is_instance(type_dict[u], Literal[type_dict[t], type_dict[s], type_dict[u]])
+                assert is_instance(type_dict[t], Literal[type_dict[t], type_dict[s], type_dict[u]], failure_callback)
+                assert is_instance(type_dict[s], Literal[type_dict[t], type_dict[s], type_dict[u]], failure_callback)
+                assert is_instance(type_dict[u], Literal[type_dict[t], type_dict[s], type_dict[u]], failure_callback)
 
 def test_is_typecheckable_namedtuple():
     class A(NamedTuple):
         # pylint:disable=all
         name: List[str]
         value: Union[int, float]
-    assert is_typecheckable(A)
+    assert is_typecheckable(A, failure_callback)
     class B:
         # pylint:disable=all
         name: List[str]
         value: Union[int, float]
-    assert not is_typecheckable(B)
+    assert not is_typecheckable(B, failure_callback)
 
 def test_is_namedtuple():
+    def failure_callback(message: str):
+        ...
     class A(NamedTuple):
         # pylint:disable=all
         name: List[str]
         value: Union[int, float]
-    assert is_namedtuple(A)
+    assert is_namedtuple(A, failure_callback)
     a = A(["hi"], 1.1)
-    assert is_instance(a, A)
+    assert is_instance(a, A, failure_callback)
     a = A(0, 1.1) # type:ignore
-    assert not is_instance(a, A)
+    assert not is_instance(a, A, failure_callback)
     class B:
         # pylint:disable=all
         name: List[str]
         def __init__(self, name: List[str]):
             self.name = name
-    assert not is_namedtuple(B)
+    class Btuple(tuple):
+        # pylint:disable=all
+        name: List[str]
+        def __init__(self, name: List[str]):
+            self.name = name
+    assert not is_namedtuple(0, failure_callback)
+    assert not is_namedtuple(B, failure_callback)
+    assert not is_namedtuple(Btuple, failure_callback)
     b = B(["hi"])
-    assert not is_instance(b, A)
+    assert not is_instance(b, A, failure_callback)
     C = namedtuple("C", ["name", "value"])
-    assert not is_namedtuple(C)
+    assert not is_namedtuple(C, failure_callback)
     # for some odd reason the following test fails in 3.7.1
     version_info = sys.version_info
     if version_info[0:3]>= (3, 7, 4):
         C._field_types = {"name": str, "value": int}
-        assert is_namedtuple(C)
+        assert is_namedtuple(C, failure_callback)
     class D1(tuple):
         _fields = []
-    assert not is_namedtuple(D1)
+    assert not is_namedtuple(D1, failure_callback)
     class D2(tuple):
         _fields = ("name", 0)
-    assert not is_namedtuple(D2)
+    assert not is_namedtuple(D2, failure_callback)
     class D3(tuple):
         _fields = ("name", "value")
         _field_types = []
-    assert not is_namedtuple(D3)
+    assert not is_namedtuple(D3, failure_callback)
     class D4(tuple):
         _fields = ("name", "value")
         _field_types = {"name": str, "val": int}
-    assert not is_namedtuple(D4)
+    assert not is_namedtuple(D4, failure_callback)
     class D5(tuple):
         _fields = ("name", "value")
         _field_types = {"name": str, "value": int, "val": int}
-    assert not is_namedtuple(D5)
+    assert not is_namedtuple(D5, failure_callback)
     class D6(tuple):
         _fields = ("name", "value")
         _field_types = {"name": str, "value": B}
-    assert not is_namedtuple(D6)
+    assert not is_namedtuple(D6, failure_callback)
+    class D6prime(tuple):
+        _fields = ("name", "value")
+        _field_types = {"name": str, "value": int}
+    assert not is_namedtuple(D6prime, failure_callback)
     class D7(tuple):
         _fields = ("name", "value")
         _field_types = {"name": str, "value": int}
         _field_defaults = []
-    assert not is_namedtuple(D7)
+    assert not is_namedtuple(D7, failure_callback)
     class D8(tuple):
         _fields = ("name", "value")
         _field_types = {"name": str, "value": int}
         _field_defaults = {"val": 0}
-    assert not is_namedtuple(D8)
+    assert not is_namedtuple(D8, failure_callback)
     class D9(tuple):
         _fields = ("name", "value")
         _field_types = {"name": str, "value": int}
         _field_defaults = {"value": "bye"}
-    assert not is_namedtuple(D9)
+    assert not is_namedtuple(D9, failure_callback)
 
 
 def test_misc():
-    assert is_instance(None, None)
-    assert is_typecheckable(None)
-    assert is_typecheckable(...)
-    assert is_typecheckable(NotImplemented)
-    assert is_typecheckable(Literal["s", 0, 1.2])
+    assert is_instance(None, None, failure_callback)
+    assert is_typecheckable(None, failure_callback)
+    assert not is_typecheckable(..., failure_callback)
+    assert not is_typecheckable(NotImplemented, failure_callback)
+    assert is_typecheckable(Literal["s", 0, 1.2], failure_callback)
     try:
-        assert is_instance("hi", "bye")
+        assert is_instance("hi", "bye", failure_callback)
         assert False
     except TypeError:
         assert True
+
+def test_failure_callbacks():
+    def failure_callback(message: str):
+        ...
+    assert not is_hashable(Union[FrozenSet[int], List[int]], failure_callback)
+    assert not is_hashable(Tuple[FrozenSet[int], List[int]], failure_callback)
+    assert not is_hashable(List[int], failure_callback)
+    class B:
+        name: str
+        value: int
+    assert not is_typecheckable(List[B], failure_callback)
+    assert not is_typecheckable(Tuple[int, B], failure_callback)
+    assert not is_typecheckable(List[B], failure_callback)
+    assert not is_instance(0, Union[str, None], failure_callback)
