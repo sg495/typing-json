@@ -116,14 +116,14 @@ def to_json_obj(obj: Any, t: Any) -> Any:
                 return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
         if t.__origin__ in (dict, Mapping):
             fields = [field for field in obj]
-            if t.__args__[0] in JSON_BASE_TYPES:
+            if t.__args__[0] in JSON_BASE_TYPES or (hasattr(t.__args__[0], "__origin__") and t.__args__[0].__origin__ is Literal):
                 encoded_fields = [field for field in fields]
             else:
                 encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0])) for field in fields]
             return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1]) for i, field in enumerate(fields)}
         if t.__origin__ is OrderedDict:
             fields = [field for field in obj]
-            if t.__args__[0] in JSON_BASE_TYPES:
+            if t.__args__[0] in JSON_BASE_TYPES or (hasattr(t.__args__[0], "__origin__") and t.__args__[0].__origin__ is Literal):
                 encoded_fields = [field for field in fields]
             else:
                 encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0])) for field in fields]

@@ -112,7 +112,7 @@ def from_json_obj(obj: Any, t: Any) -> Any:
                 raise TypeError("Object %s is not dict or OrderedDict (t=%s)."%(short_str(obj), str(t)))
             converted_dict = dict() # type:ignore
             for field in obj:
-                if t.__args__[0] in JSON_BASE_TYPES:
+                if t.__args__[0] in JSON_BASE_TYPES or (hasattr(t.__args__[0], "__origin__") and t.__args__[0].__origin__ is Literal):
                     if not is_instance(field, t.__args__[0]):
                         raise TypeError("Object key %s is not of json base type %s (t=%s)."%(field, str(t.__args__[0]), str(t)))
                     converted_field = field
@@ -126,7 +126,7 @@ def from_json_obj(obj: Any, t: Any) -> Any:
                 raise TypeError("Object %s is not dict or OrderedDict (t=%s)."%(short_str(obj), str(t)))
             converted_dict = OrderedDict() # type:ignore
             for field in obj:
-                if t.__args__[0] in JSON_BASE_TYPES:
+                if t.__args__[0] in JSON_BASE_TYPES or (hasattr(t.__args__[0], "__origin__") and t.__args__[0].__origin__ is Literal):
                     if not isinstance(field, t.__args__[0]):
                         raise TypeError("Object key %s not of json base type %s (t=%s)."%(field, str(t.__args__[0]), str(t)))
                     converted_field = field

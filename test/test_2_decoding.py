@@ -67,6 +67,39 @@ def test_from_json_obj():
     od = collections.OrderedDict(d)
     assert from_json_obj(to_json_obj(od, typing.OrderedDict[FrozenSet[str], str]), typing.OrderedDict[FrozenSet[str], str]) == od
 
+def test_from_json_obj_literal():
+    # pylint:disable=missing-docstring,invalid-name
+    d = {
+        "hi": 0,
+        "bye": 1
+    }
+    t = Dict[Literal["hi", "bye"], int]
+    assert from_json_obj(to_json_obj(d, t), t) == d
+    d = {
+        0: 0,
+        1: 1
+    }
+    t = Dict[Literal[0, 1], int]
+    assert from_json_obj(to_json_obj(d, t), t) == d
+    d = {
+        "hi": 0,
+        1.2: 1
+    }
+    t = Dict[Literal["hi", 1.2], int]
+    assert from_json_obj(to_json_obj(d, t), t) == d
+    d = {
+        "hi": 0,
+        None: 1
+    }
+    t = Dict[Literal["hi", None], int]
+    assert from_json_obj(to_json_obj(d, t), t) == d
+    d = {
+        True: 0,
+        1.2: 1
+    }
+    t = Dict[Literal[True, 1.2], int]
+    assert from_json_obj(to_json_obj(d, t), t) == d
+
 def test_from_json_obj_errors():
     # pylint:disable=too-many-branches, too-many-statements
     try:
