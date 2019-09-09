@@ -75,30 +75,46 @@ def test_from_json_obj_literal():
     }
     t = Dict[Literal["hi", "bye"], int]
     assert from_json_obj(to_json_obj(d, t), t) == d
+    od = collections.OrderedDict(d)
+    t = typing.OrderedDict[Literal["hi", "bye"], int]
+    assert from_json_obj(to_json_obj(od, t), t) == od
     d = {
         0: 0,
         1: 1
     }
     t = Dict[Literal[0, 1], int]
     assert from_json_obj(to_json_obj(d, t), t) == d
+    od = collections.OrderedDict(d)
+    t = typing.OrderedDict[Literal[0, 1], int]
+    assert from_json_obj(to_json_obj(od, t), t) == od
     d = {
         "hi": 0,
         1.2: 1
     }
     t = Dict[Literal["hi", 1.2], int]
     assert from_json_obj(to_json_obj(d, t), t) == d
+    od = collections.OrderedDict(d)
+    t = typing.OrderedDict[Literal["hi", 1.2], int]
+    assert from_json_obj(to_json_obj(od, t), t) == od
     d = {
         "hi": 0,
         None: 1
     }
     t = Dict[Literal["hi", None], int]
     assert from_json_obj(to_json_obj(d, t), t) == d
+    od = collections.OrderedDict(d)
+    t = typing.OrderedDict[Literal["hi", None], int]
+    assert from_json_obj(to_json_obj(od, t), t) == od
     d = {
         True: 0,
         1.2: 1
     }
     t = Dict[Literal[True, 1.2], int]
     assert from_json_obj(to_json_obj(d, t), t) == d
+    od = collections.OrderedDict(d)
+    t = typing.OrderedDict[Literal[True, 1.2], int]
+    assert from_json_obj(to_json_obj(od, t), t) == od
+
 
 def test_from_json_obj_errors():
     # pylint:disable=too-many-branches, too-many-statements

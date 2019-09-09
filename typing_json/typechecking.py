@@ -17,6 +17,8 @@ _UNREACHABLE_ERROR_MSG = "Should never reach this point, please open an issue on
 
 def short_str(obj: Any) -> str:
     """ Returns a shortened string representation of objects for error messages. """
+    if isinstance(obj, str):
+        return "\""+obj+"\""
     return textwrap.shorten(str(obj), width=30, placeholder="...")
 
 def is_hashable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -> bool:
@@ -126,7 +128,7 @@ def is_instance(obj: Any, t: Any, failure_callback: Optional[Callable[[str], Non
                 failure_callback("Value %s does not match any of the types in %s."%(short_str(obj), str(t)))
             return False
         if t.__origin__ is Literal:
-            if any(obj is s for s in t.__args__):
+            if any(obj == s for s in t.__args__):
                 return True
             if failure_callback:
                 failure_callback("Value %s does not match any of the values in %s."%(short_str(obj), str(t)))
