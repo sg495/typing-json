@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.5" />
+<title>typing_json.encoding API documentation</title>
+<meta name="description" content="The `typing_json.encoding` provides functionality for type-aware JSON-encoding of objects …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_CHTML'></script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>typing_json.encoding</code></h1>
+</header>
+<section id="section-intro">
+<p>The <a title="typing_json.encoding" href="#typing_json.encoding"><code>typing_json.encoding</code></a> provides functionality for type-aware JSON-encoding of objects.</p>
+<p>The core functionality is provided by <a title="typing_json.encoding.to_json_obj" href="#typing_json.encoding.to_json_obj"><code>to_json_obj()</code></a>, which JSON-encodes instances
+of basic JSON types, typed collections from the <code>typing</code> module, literal types, union types, optional types
+and (certain) typed namedtuples.
+The JSON-encoding preserves all information necessary to reconstruct the at decoding time (cf. <a title="typing_json.decoding.from_json_obj" href="decoding.html#typing_json.decoding.from_json_obj"><code>from_json_obj()</code></a>).</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#pylint:disable = line-too-long, invalid-name
+&#34;&#34;&#34;
+    The `typing_json.encoding` provides functionality for type-aware JSON-encoding of objects.
+
+    The core functionality is provided by `typing_json.encoding.to_json_obj`, which JSON-encodes instances
+    of basic JSON types, typed collections from the `typing` module, literal types, union types, optional types
+    and (certain) typed namedtuples.
+    The JSON-encoding preserves all information necessary to reconstruct the at decoding time (cf. `typing_json.decoding.from_json_obj`).
+&#34;&#34;&#34;
+
+# standard imports
+from collections import deque, OrderedDict
+from collections.abc import Mapping
+from decimal import Decimal
+from enum import EnumMeta
+import json
+from typing import Any, Callable, List, Optional, Union
+
+# external dependencies
+from typing_extensions import Literal
+
+# internal imports
+from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_typecheckable, JSON_BASE_TYPES, short_str
+
+
+_UNREACHABLE_ERROR_MSG = &#34;Should never reach this point, please open an issue on GitHub.&#34;
+
+
+def _not_json_encodable(message: str, failure_callback: Optional[Callable[[str], None]]) -&gt; Literal[False]:
+    &#34;&#34;&#34; Utility message to fail (return `False`) by first calling an optional failure callback. &#34;&#34;&#34;
+    if failure_callback:
+        failure_callback(message)
+    return False
+
+
+def is_json_encodable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -&gt; bool:
+    &#34;&#34;&#34;
+        Checks whether a type `t` can be encoded into JSON (or decoded from JSON) using the `typing_json` library.
+
+        The optional parameter `failure_callback` can be used to collect a detailed trace of
+        the reasons behind this method returning `False` on a given type `t`.
+
+        Currently, a type `t` is JSON encodable according to this method if it is typecheckable according to
+        `typing_json.typechecking.is_typecheckable` and it satisfies one of the following conditions:
+
+        - if `t` is one of the JSON base types `bool`, `int`, `float`, `str`, `NoneType`;
+        - if `t` is a `decimal.Decimal`;
+        - if `t` is `None` (used as an alias for `NoneType`);
+        - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`);
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable;
+        - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or a variadic `typing.Tuple` and its generic type argument is JSON encodable;
+        - if `t` is a `typing.Union` or a fixed-length `typing.Tuple` and all of its generic type arguments are JSON encodable;
+        - if `t` is a `typing.Dict`, `typing.OrderedDict` or `typing.Mapping`, its generic key type is keyable (according to `typing_json.typechecking.is_keyable`) and both its generic key and value types are JSON encodable;
+        - if `t` is a `typing_extensions.Literal` and all of its literal arguments are of JSON base type.
+
+    &#34;&#34;&#34;
+    # pylint: disable = too-many-return-statements, too-many-branches
+    if not is_typecheckable(t, failure_callback=failure_callback):
+        # only typecheckable types are encodable
+        return _not_json_encodable(&#34;Type %s is not typecheckable.&#34;%str(t), failure_callback=failure_callback)
+    if t in JSON_BASE_TYPES:
+        # JSON base types are encodable
+        return True
+    if t is Decimal:
+        # `decimal.Decimal` is encodable
+        return True
+    if t is None:
+        # `None` canbe used as an alias for class `NoneType`
+        return True
+    if isinstance(t, EnumMeta):
+        # enums are encodable
+        return True
+    if is_namedtuple(t):
+        field_types = getattr(t, &#34;_field_types&#34;)
+        if all(is_json_encodable(field_types[field]) for field in field_types):
+            # namedtuples are encodable if all their fields are of encodable types
+            return True
+        return _not_json_encodable(&#34;Not all fields of namedtuple %s are json-encodable.&#34;%str(t), failure_callback=failure_callback)
+    if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
+        # `typing` generics
+        if t.__origin__ in (list, set, frozenset, deque, Optional):
+            if is_json_encodable(t.__args__[0]):
+                # `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` and `typing.Optional` are encodable if their generic type argument is encodable
+                return True
+            return _not_json_encodable(&#34;Type of elements in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+        if t.__origin__ is tuple:
+            # `typing.Tuple`
+            if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
+                if is_json_encodable(t.__args__[0]):
+                    # variadic `typing.Tuple` are encodable if their generic type argument is encodable
+                    return True
+                return _not_json_encodable(&#34;Type of elements in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+            else:
+                if all(is_json_encodable(s) for s in t.__args__):
+                    # fixed-length `typing.Tuple` are encodable if all their generic type arguments are encodable
+                    return True
+                return _not_json_encodable(&#34;Type of some element in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+        if t.__origin__ is Union:
+            if all(is_json_encodable(s) for s in t.__args__):
+                # `typing.Union` are encodable if all their generic type arguments are encodable
+                return True
+            return _not_json_encodable(&#34;Some type in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+        if t.__origin__ in (dict, OrderedDict, Mapping):
+            # `typing.Dict`, `typing.OrderedDict` and `typing.Mapping` are encodable if their generic key and value types are encodable and their key type is keyable
+            if not is_keyable(t.__args__[0]):
+                return _not_json_encodable(&#34;Type of keys in %s is not keyable.&#34;%str(t), failure_callback=failure_callback)
+            if not is_json_encodable(t.__args__[0]):
+                return _not_json_encodable(&#34;Type of keys in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+            if not is_json_encodable(t.__args__[1]):
+                return _not_json_encodable(&#34;Type of values in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+            return True
+        if t.__origin__ is Literal:
+            # `typing_extensions.Literal` are encodable as long as their literals are JSON base types, which is always the case if they are typecheckable.
+            return True
+    return False
+
+
+def to_json_obj(obj: Any, t: Any) -&gt; Any:
+    &#34;&#34;&#34;
+        Encodes an instance `obj` of typecheckable type `t` into a JSON object.
+        This method raises `TypeError` if type `t` is not typecheckable according to `typing_json.typechecking.is_typecheckable`.
+        This method raises `TypeError` if `obj` is not of type `t` according to `typing_json.typechecking.is_instance`.
+
+        The optional parameter `failure_callback` can be used to collect a detailed trace of
+        the reasons behind this method returning `False` on a given type `t`.
+
+        Currently, this method acts as follows on an instance `obj` of type `t`:
+
+        - if `t` is one of the JSON base types `bool`, `int`, `float`, `str`, `NoneType`, the instance `obj` is returned unchanged;
+        - if `t` is a `decimal.Decimal`, `obj.to_integral_value()` is returned if `obj` encodes an integer and `str(obj)` is returned otherwise;
+        - if `t` is `None` (used as an alias for `NoneType`), `None` is returned;
+        - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`), the enum value name `obj._name_` is returned;
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
+        - if `t` is `typing.Union`, the generic type arguments in the union are tried one after the other until a `u` is found such that `is_instance(obj, u)`, then `obj` is JSON-encoded using `u` as its type.
+        - if `t` is a `typing_extensions.Literal`, `obj` is returned unchanged;
+        - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` or `typing.Tuple`, a list is returned containing the elements of the original collection, recursively JSON-encoded;
+        - if `t` is a `typing.Dict` or `typing.Mapping`, a dictionary (`dict`) is returned with JSON-encoded values from the original dictionary/mapping, associated to either then JSON-encoded keys or a stringified version of the JSON-encoded keys (cf. below);
+        - if `t` is `typing.OrderedDict`, an ordered dictionary (`collections.OrderedDict`) is returned with JSON-encoded values from the original dictionary/mapping, associated to either then JSON-encoded keys or a stringified version of the JSON-encoded keys (cf. below).
+
+        In the case of dictionaries, it is not necessarily the case keys will be compatible with the JSON specification in their JSON-encoded form.
+        When encoding dictionaries, the keys used in the encoding follow the following criteria:
+
+        - if the key type is a JOSN base type, `decimal.Decimal` or an enumeration type, the JSON encoding of the keys is used;
+        - otherwise, the stringified version of the JSON encoding (using `json.dumps`) is used;
+
+        Literals can only be of JSON base type.
+
+    &#34;&#34;&#34;
+    # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
+    trace: List[str] = []
+    def failure_callback(message: str) -&gt; None:
+        trace.append(message)
+    if not is_json_encodable(t, failure_callback=failure_callback):
+        # Argument `t` must be JSON encodable.
+        raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
+    trace = []
+    if not is_instance(obj, t, failure_callback=failure_callback):
+        # Argument `obj` must be an instance of argument `t`.
+        raise TypeError(&#34;Object %s is not of type %s. Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
+    if t in JSON_BASE_TYPES:
+        # JSON base types are returned unchanged.
+        return obj
+    if t is Decimal:
+        # Instances of `decimal.Decimal` are encoded as `int` if integer and as `str` otherwise.
+        if obj == obj.to_integral_value():
+            return obj.to_integral_value()
+        return str(obj)
+    if t in (None, type(None)):
+        # `None` can be used as an alias for `NoneType`.
+        return None
+    if isinstance(t, EnumMeta):
+        # Enum values are encoded by their name.
+        return obj._name_ # pylint:disable=protected-access
+    if is_namedtuple(t):
+        # Namedtuples are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
+        field_types = getattr(t, &#34;_field_types&#34;)
+        json_dict = OrderedDict() # type:ignore
+        for field in field_types:
+            json_dict[field] = to_json_obj(getattr(obj, field), field_types[field])
+        return json_dict
+    if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
+        # Generics from the `typing` module.
+        if t.__origin__ is Union:
+            # values in a `typing.Union` are JSON-encoded using the first type in the union that the object is found to be an instance of.
+            for s in t.__args__:
+                if is_instance(obj, s):
+                    return to_json_obj(obj, s)
+            raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover
+        if t.__origin__ is Literal:
+            # `typing_extensions.Literal` are returned unchanged
+            return obj
+        if t.__origin__ in (list, set, frozenset, deque):
+            # `typing.List`, `typing.Set`, `typing.FrozenSet` and `typing.Deque` are turned into lists, with their elements recursively JSON-encoded
+            return [to_json_obj(x, t.__args__[0]) for x in obj]
+        if t.__origin__ is tuple:
+            # `typing.Tuple` are turned into lists, with their elements recursively JSON-encoded
+            if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
+                return [to_json_obj(x, t.__args__[0]) for x in obj]
+            else:
+                return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
+        if t.__origin__ in (dict, OrderedDict, Mapping):
+            # `typing.Dict` and `typing.Mapping` are turned into dictionaries and `typing.OrderedDict` are turned into ordered dictionaries.
+            # The values are recursively JSON-encoded. Keys require special handling.
+            fields = [field for field in obj] # pylint: disable = unnecessary-comprehension
+            if t.__args__[0] in JSON_BASE_TYPES+(Decimal, None,):
+                # Keys of JSON base types, `decimal.Decimal` and `None` are recursively JSON-encoded.
+                # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
+                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+            elif (hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal):
+                # Keys of `typing_extensions.Literal` types are recursively JSON-encoded.
+                # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
+                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+            elif isinstance(t.__args__[0], EnumMeta):
+                # Keys of enumeration types are recursively JSON-encoded.
+                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+            else:
+                # Keys of any other type are recursively JSON-encoded and then JSON dumped to strings.
+                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0])) for field in fields]
+            if t.__origin__ in (dict, Mapping):
+                # A `dict`is used for `typing.Dict` and `typing.Mapping`.
+                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1]) for i, field in enumerate(fields)}
+            if t.__origin__ is OrderedDict:
+                # A `collections.OrderedDict` is used for `typing.OrderedDict`.
+                new_ordered_dict = OrderedDict() # type:ignore
+                for i, field in enumerate(fields):
+                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1])
+                return new_ordered_dict
+    raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="typing_json.encoding.is_json_encodable"><code class="name flex">
+<span>def <span class="ident">is_json_encodable</span></span>(<span>t: Any, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) -> bool</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Checks whether a type <code>t</code> can be encoded into JSON (or decoded from JSON) using the <a title="typing_json" href="index.html"><code>typing_json</code></a> library.</p>
+<p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of
+the reasons behind this method returning <code>False</code> on a given type <code>t</code>.</p>
+<p>Currently, a type <code>t</code> is JSON encodable according to this method if it is typecheckable according to
+<a title="typing_json.typechecking.is_typecheckable" href="typechecking.html#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a> and it satisfies one of the following conditions:</p>
+<ul>
+<li>if <code>t</code> is one of the JSON base types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>;</li>
+<li>if <code>t</code> is a <code>decimal.Decimal</code>;</li>
+<li>if <code>t</code> is <code>None</code> (used as an alias for <code>NoneType</code>);</li>
+<li>if <code>t</code> is an enum (i.e. <code>isinstance(t, EnumMeta)</code>);</li>
+<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable;</li>
+<li>if <code>t</code> is one of <code>typing.List</code>, <code>typing.Set</code>, <code>typing.FrozenSet</code>, <code>typing.Deque</code>, <code>typing.Optional</code> or a variadic <code>typing.Tuple</code> and its generic type argument is JSON encodable;</li>
+<li>if <code>t</code> is a <code>typing.Union</code> or a fixed-length <code>typing.Tuple</code> and all of its generic type arguments are JSON encodable;</li>
+<li>if <code>t</code> is a <code>typing.Dict</code>, <code>typing.OrderedDict</code> or <code>typing.Mapping</code>, its generic key type is keyable (according to <a title="typing_json.typechecking.is_keyable" href="typechecking.html#typing_json.typechecking.is_keyable"><code>is_keyable()</code></a>) and both its generic key and value types are JSON encodable;</li>
+<li>if <code>t</code> is a <code>typing_extensions.Literal</code> and all of its literal arguments are of JSON base type.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_json_encodable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -&gt; bool:
+    &#34;&#34;&#34;
+        Checks whether a type `t` can be encoded into JSON (or decoded from JSON) using the `typing_json` library.
+
+        The optional parameter `failure_callback` can be used to collect a detailed trace of
+        the reasons behind this method returning `False` on a given type `t`.
+
+        Currently, a type `t` is JSON encodable according to this method if it is typecheckable according to
+        `typing_json.typechecking.is_typecheckable` and it satisfies one of the following conditions:
+
+        - if `t` is one of the JSON base types `bool`, `int`, `float`, `str`, `NoneType`;
+        - if `t` is a `decimal.Decimal`;
+        - if `t` is `None` (used as an alias for `NoneType`);
+        - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`);
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable;
+        - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or a variadic `typing.Tuple` and its generic type argument is JSON encodable;
+        - if `t` is a `typing.Union` or a fixed-length `typing.Tuple` and all of its generic type arguments are JSON encodable;
+        - if `t` is a `typing.Dict`, `typing.OrderedDict` or `typing.Mapping`, its generic key type is keyable (according to `typing_json.typechecking.is_keyable`) and both its generic key and value types are JSON encodable;
+        - if `t` is a `typing_extensions.Literal` and all of its literal arguments are of JSON base type.
+
+    &#34;&#34;&#34;
+    # pylint: disable = too-many-return-statements, too-many-branches
+    if not is_typecheckable(t, failure_callback=failure_callback):
+        # only typecheckable types are encodable
+        return _not_json_encodable(&#34;Type %s is not typecheckable.&#34;%str(t), failure_callback=failure_callback)
+    if t in JSON_BASE_TYPES:
+        # JSON base types are encodable
+        return True
+    if t is Decimal:
+        # `decimal.Decimal` is encodable
+        return True
+    if t is None:
+        # `None` canbe used as an alias for class `NoneType`
+        return True
+    if isinstance(t, EnumMeta):
+        # enums are encodable
+        return True
+    if is_namedtuple(t):
+        field_types = getattr(t, &#34;_field_types&#34;)
+        if all(is_json_encodable(field_types[field]) for field in field_types):
+            # namedtuples are encodable if all their fields are of encodable types
+            return True
+        return _not_json_encodable(&#34;Not all fields of namedtuple %s are json-encodable.&#34;%str(t), failure_callback=failure_callback)
+    if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
+        # `typing` generics
+        if t.__origin__ in (list, set, frozenset, deque, Optional):
+            if is_json_encodable(t.__args__[0]):
+                # `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` and `typing.Optional` are encodable if their generic type argument is encodable
+                return True
+            return _not_json_encodable(&#34;Type of elements in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+        if t.__origin__ is tuple:
+            # `typing.Tuple`
+            if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
+                if is_json_encodable(t.__args__[0]):
+                    # variadic `typing.Tuple` are encodable if their generic type argument is encodable
+                    return True
+                return _not_json_encodable(&#34;Type of elements in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+            else:
+                if all(is_json_encodable(s) for s in t.__args__):
+                    # fixed-length `typing.Tuple` are encodable if all their generic type arguments are encodable
+                    return True
+                return _not_json_encodable(&#34;Type of some element in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+        if t.__origin__ is Union:
+            if all(is_json_encodable(s) for s in t.__args__):
+                # `typing.Union` are encodable if all their generic type arguments are encodable
+                return True
+            return _not_json_encodable(&#34;Some type in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+        if t.__origin__ in (dict, OrderedDict, Mapping):
+            # `typing.Dict`, `typing.OrderedDict` and `typing.Mapping` are encodable if their generic key and value types are encodable and their key type is keyable
+            if not is_keyable(t.__args__[0]):
+                return _not_json_encodable(&#34;Type of keys in %s is not keyable.&#34;%str(t), failure_callback=failure_callback)
+            if not is_json_encodable(t.__args__[0]):
+                return _not_json_encodable(&#34;Type of keys in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+            if not is_json_encodable(t.__args__[1]):
+                return _not_json_encodable(&#34;Type of values in %s is not json-encodable.&#34;%str(t), failure_callback=failure_callback)
+            return True
+        if t.__origin__ is Literal:
+            # `typing_extensions.Literal` are encodable as long as their literals are JSON base types, which is always the case if they are typecheckable.
+            return True
+    return False</code></pre>
+</details>
+</dd>
+<dt id="typing_json.encoding.to_json_obj"><code class="name flex">
+<span>def <span class="ident">to_json_obj</span></span>(<span>obj: Any, t: Any) -> Any</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Encodes an instance <code>obj</code> of typecheckable type <code>t</code> into a JSON object.
+This method raises <code>TypeError</code> if type <code>t</code> is not typecheckable according to <a title="typing_json.typechecking.is_typecheckable" href="typechecking.html#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a>.
+This method raises <code>TypeError</code> if <code>obj</code> is not of type <code>t</code> according to <a title="typing_json.typechecking.is_instance" href="typechecking.html#typing_json.typechecking.is_instance"><code>is_instance()</code></a>.</p>
+<p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of
+the reasons behind this method returning <code>False</code> on a given type <code>t</code>.</p>
+<p>Currently, this method acts as follows on an instance <code>obj</code> of type <code>t</code>:</p>
+<ul>
+<li>if <code>t</code> is one of the JSON base types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>, the instance <code>obj</code> is returned unchanged;</li>
+<li>if <code>t</code> is a <code>decimal.Decimal</code>, <code>obj.to_integral_value()</code> is returned if <code>obj</code> encodes an integer and <code>str(obj)</code> is returned otherwise;</li>
+<li>if <code>t</code> is <code>None</code> (used as an alias for <code>NoneType</code>), <code>None</code> is returned;</li>
+<li>if <code>t</code> is an enum (i.e. <code>isinstance(t, EnumMeta)</code>), the enum value name <code>obj._name_</code> is returned;</li>
+<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;</li>
+<li>if <code>t</code> is <code>typing.Union</code>, the generic type arguments in the union are tried one after the other until a <code>u</code> is found such that <code>is_instance(obj, u)</code>, then <code>obj</code> is JSON-encoded using <code>u</code> as its type.</li>
+<li>if <code>t</code> is a <code>typing_extensions.Literal</code>, <code>obj</code> is returned unchanged;</li>
+<li>if <code>t</code> is one of <code>typing.List</code>, <code>typing.Set</code>, <code>typing.FrozenSet</code>, <code>typing.Deque</code> or <code>typing.Tuple</code>, a list is returned containing the elements of the original collection, recursively JSON-encoded;</li>
+<li>if <code>t</code> is a <code>typing.Dict</code> or <code>typing.Mapping</code>, a dictionary (<code>dict</code>) is returned with JSON-encoded values from the original dictionary/mapping, associated to either then JSON-encoded keys or a stringified version of the JSON-encoded keys (cf. below);</li>
+<li>if <code>t</code> is <code>typing.OrderedDict</code>, an ordered dictionary (<code>collections.OrderedDict</code>) is returned with JSON-encoded values from the original dictionary/mapping, associated to either then JSON-encoded keys or a stringified version of the JSON-encoded keys (cf. below).</li>
+</ul>
+<p>In the case of dictionaries, it is not necessarily the case keys will be compatible with the JSON specification in their JSON-encoded form.
+When encoding dictionaries, the keys used in the encoding follow the following criteria:</p>
+<ul>
+<li>if the key type is a JOSN base type, <code>decimal.Decimal</code> or an enumeration type, the JSON encoding of the keys is used;</li>
+<li>otherwise, the stringified version of the JSON encoding (using <code>json.dumps</code>) is used;</li>
+</ul>
+<p>Literals can only be of JSON base type.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_json_obj(obj: Any, t: Any) -&gt; Any:
+    &#34;&#34;&#34;
+        Encodes an instance `obj` of typecheckable type `t` into a JSON object.
+        This method raises `TypeError` if type `t` is not typecheckable according to `typing_json.typechecking.is_typecheckable`.
+        This method raises `TypeError` if `obj` is not of type `t` according to `typing_json.typechecking.is_instance`.
+
+        The optional parameter `failure_callback` can be used to collect a detailed trace of
+        the reasons behind this method returning `False` on a given type `t`.
+
+        Currently, this method acts as follows on an instance `obj` of type `t`:
+
+        - if `t` is one of the JSON base types `bool`, `int`, `float`, `str`, `NoneType`, the instance `obj` is returned unchanged;
+        - if `t` is a `decimal.Decimal`, `obj.to_integral_value()` is returned if `obj` encodes an integer and `str(obj)` is returned otherwise;
+        - if `t` is `None` (used as an alias for `NoneType`), `None` is returned;
+        - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`), the enum value name `obj._name_` is returned;
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
+        - if `t` is `typing.Union`, the generic type arguments in the union are tried one after the other until a `u` is found such that `is_instance(obj, u)`, then `obj` is JSON-encoded using `u` as its type.
+        - if `t` is a `typing_extensions.Literal`, `obj` is returned unchanged;
+        - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` or `typing.Tuple`, a list is returned containing the elements of the original collection, recursively JSON-encoded;
+        - if `t` is a `typing.Dict` or `typing.Mapping`, a dictionary (`dict`) is returned with JSON-encoded values from the original dictionary/mapping, associated to either then JSON-encoded keys or a stringified version of the JSON-encoded keys (cf. below);
+        - if `t` is `typing.OrderedDict`, an ordered dictionary (`collections.OrderedDict`) is returned with JSON-encoded values from the original dictionary/mapping, associated to either then JSON-encoded keys or a stringified version of the JSON-encoded keys (cf. below).
+
+        In the case of dictionaries, it is not necessarily the case keys will be compatible with the JSON specification in their JSON-encoded form.
+        When encoding dictionaries, the keys used in the encoding follow the following criteria:
+
+        - if the key type is a JOSN base type, `decimal.Decimal` or an enumeration type, the JSON encoding of the keys is used;
+        - otherwise, the stringified version of the JSON encoding (using `json.dumps`) is used;
+
+        Literals can only be of JSON base type.
+
+    &#34;&#34;&#34;
+    # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
+    trace: List[str] = []
+    def failure_callback(message: str) -&gt; None:
+        trace.append(message)
+    if not is_json_encodable(t, failure_callback=failure_callback):
+        # Argument `t` must be JSON encodable.
+        raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
+    trace = []
+    if not is_instance(obj, t, failure_callback=failure_callback):
+        # Argument `obj` must be an instance of argument `t`.
+        raise TypeError(&#34;Object %s is not of type %s. Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
+    if t in JSON_BASE_TYPES:
+        # JSON base types are returned unchanged.
+        return obj
+    if t is Decimal:
+        # Instances of `decimal.Decimal` are encoded as `int` if integer and as `str` otherwise.
+        if obj == obj.to_integral_value():
+            return obj.to_integral_value()
+        return str(obj)
+    if t in (None, type(None)):
+        # `None` can be used as an alias for `NoneType`.
+        return None
+    if isinstance(t, EnumMeta):
+        # Enum values are encoded by their name.
+        return obj._name_ # pylint:disable=protected-access
+    if is_namedtuple(t):
+        # Namedtuples are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
+        field_types = getattr(t, &#34;_field_types&#34;)
+        json_dict = OrderedDict() # type:ignore
+        for field in field_types:
+            json_dict[field] = to_json_obj(getattr(obj, field), field_types[field])
+        return json_dict
+    if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
+        # Generics from the `typing` module.
+        if t.__origin__ is Union:
+            # values in a `typing.Union` are JSON-encoded using the first type in the union that the object is found to be an instance of.
+            for s in t.__args__:
+                if is_instance(obj, s):
+                    return to_json_obj(obj, s)
+            raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover
+        if t.__origin__ is Literal:
+            # `typing_extensions.Literal` are returned unchanged
+            return obj
+        if t.__origin__ in (list, set, frozenset, deque):
+            # `typing.List`, `typing.Set`, `typing.FrozenSet` and `typing.Deque` are turned into lists, with their elements recursively JSON-encoded
+            return [to_json_obj(x, t.__args__[0]) for x in obj]
+        if t.__origin__ is tuple:
+            # `typing.Tuple` are turned into lists, with their elements recursively JSON-encoded
+            if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
+                return [to_json_obj(x, t.__args__[0]) for x in obj]
+            else:
+                return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
+        if t.__origin__ in (dict, OrderedDict, Mapping):
+            # `typing.Dict` and `typing.Mapping` are turned into dictionaries and `typing.OrderedDict` are turned into ordered dictionaries.
+            # The values are recursively JSON-encoded. Keys require special handling.
+            fields = [field for field in obj] # pylint: disable = unnecessary-comprehension
+            if t.__args__[0] in JSON_BASE_TYPES+(Decimal, None,):
+                # Keys of JSON base types, `decimal.Decimal` and `None` are recursively JSON-encoded.
+                # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
+                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+            elif (hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal):
+                # Keys of `typing_extensions.Literal` types are recursively JSON-encoded.
+                # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
+                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+            elif isinstance(t.__args__[0], EnumMeta):
+                # Keys of enumeration types are recursively JSON-encoded.
+                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+            else:
+                # Keys of any other type are recursively JSON-encoded and then JSON dumped to strings.
+                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0])) for field in fields]
+            if t.__origin__ in (dict, Mapping):
+                # A `dict`is used for `typing.Dict` and `typing.Mapping`.
+                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1]) for i, field in enumerate(fields)}
+            if t.__origin__ is OrderedDict:
+                # A `collections.OrderedDict` is used for `typing.OrderedDict`.
+                new_ordered_dict = OrderedDict() # type:ignore
+                for i, field in enumerate(fields):
+                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1])
+                return new_ordered_dict
+    raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="typing_json" href="index.html">typing_json</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="typing_json.encoding.is_json_encodable" href="#typing_json.encoding.is_json_encodable">is_json_encodable</a></code></li>
+<li><code><a title="typing_json.encoding.to_json_obj" href="#typing_json.encoding.to_json_obj">to_json_obj</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

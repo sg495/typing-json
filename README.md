@@ -26,6 +26,7 @@ The function `is_hashable(t)` returns `True` if and only if the `t` argument is 
 - the `typing` types `Tuple[_T1,...]` (single-type variadic tuple), `Tuple[_T1,...,_TN]` (multi-type fixed arity tuple), `FrozenSet[_T]`, `Optional[_T]`, `Union[_T1,...,_TN]` where `_T`, `_S`, `_T1`, ..., `_TN` are themselves hashable types;
 - the `typing_extensions` type `Literal[_v1, ..., _vn]` where `_v1`, ..., `_vn` are of hashable standard type (see above);
 - types created using `typing.NamedTuple` using hashable field types;
+- `Enum` types;
 
 Support for enum types and NewType is planned (see pull request [#5](https://github.com/sg495/typing-json/pull/5)).
 
@@ -47,6 +48,7 @@ The function `is_typecheckable(t)` returns `True` if and only if the `t` argumen
 - the `typing` types `Any`, `List[_T]`, `Tuple[_T1,...]` (single-type variadic tuple), `Tuple[_T1,...,_TN]` (multi-type fixed arity tuple), `Set[_T]`, `FrozenSet[_T]`, `Dict[_T, _S]`, `OrderedDict[_T, _S]`, `Mapping[_T, _S]`, `Deque[_T]`, `Optional[_T]`, `Union[_T1,...,_TN]` where `_T`, `_S`, `_T1`, ..., `_TN` are themselves supported types;
 - the `typing_extensions` type `Literal[_v1, ..., _vn]` where `_v1`, ..., `_vn` are of typecheckable standard of `collections` type (see above);
 - types created using `typing.NamedTuple` using typecheckable field types;
+- `Enum` types;
 
 Arbitrary classes are currently not supported, regardless of type annotations. Support for types created using `collections.namedtuple` is not planned. Support for enum types and NewType is planned (see pull request [#5](https://github.com/sg495/typing-json/pull/5)).
 
@@ -93,7 +95,8 @@ The function `is_json_encodable(t)` returns `True` if and only if `t` is a json-
 - the standard types `bool`, `int`, `float`, `str`, and `NoneType` (as well as the value `None`, treated equivalently to `NoneType`);
 - any `t` such that `is_namedtuple(t)` and such that all field types are json-encodable themselves;
 - the `typing` types `List[_T]`, `Set[_T]`, `FrozenSet[_T]`, `Deque[_T]`, `Tuple[_T,...]`, `Tuple[_T1,...,_TN]`, `Dict[str, _T]`, `OrderedDict[str, _T]`, `Mapping[str, _T]`, `Union[_T1,...,_TN]`, `Optional[_T]`where `_T`, `_T1`, ..., `_TN` are themselves json-encodable types;
-- the `typing_extensions` type `Literal[_v1,...,_vn]`, where where each `_vj in [_v1,...,_vn]` is of type `bool`, `int`, `float`, `str` or `NoneType`.
+- the `typing_extensions` type `Literal[_v1,...,_vn]`, where where each `_vj in [_v1,...,_vn]` is of type `bool`, `int`, `float`, `str` or `NoneType`;
+- `Enum` types;
 
 Future support is planned for more `typing` and `typing_extensions` types, including enum types and NewType (see pull request [#5](https://github.com/sg495/typing-json/pull/5)).
 
@@ -119,6 +122,7 @@ The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable ty
 - if `t` is `Tuple[_T1,...,_TN]`, a list is returned, containing all elements of `obj` recursively converted to natively--json-compatible objects using types `_T1`,...,`_TN` for the conversion of the elements `x1`,...,`xN` of `obj`;
 - if `t` is `Dict[_S, _T]` or `Mapping[_S, _T]`, a dictionary is returned with keys and values recursively converted to natively--json-compatible type according to types `_S` and `_T` respectively, and the string version of the keys json is used if they are not one of `bool`, `int`, `float`, `str` or `NoneType`;
 - if `t` is `OrderedDict[_S, _T]`, an dictionary is returned with keys and values recursively converted to natively--json-compatible type according to types `_S` and `_T` respectively, and the string version of the keys json is used if they are not one of `bool`, `int`, `float`, `str` or `NoneType`;
+- if `t` is an `Enum` type, the string `obj._name_` is returned;
 
 If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised. If `obj` is not of type `t` according to `is_instance(obj, t)` then `TypeError` is raised.
 
@@ -163,6 +167,7 @@ The function `to_json_obj(obj, t)` takes an object `obj` and a json encodable ty
 - if `t` is `Tuple[_TN,...,_TN]` then all members of `obj` are recursively converted to the respective types `_Tj` and a tuple of the results is returned (`TypeError` is raised if `obj` is not a list or if the length does not match the required length for the tuple);
 - if `t` is `Dict[_S, _T]` or `Mapping[_S, _T]` then all keys and values of `obj` are recursively converted to types `_S` and `_T` respectively (if `_S` is not one of `bool`, `int`, `float`, `str`, `NoneType` or `None`, the keys are first json-parsed from strings), and a dict of the results is returned (`TypeError` is raised if `obj` is not a (ordered) dictionary);
 - if `t` is `OrderedDict[_S, _T]`  then all keys and values of `obj` are recursively converted to types `_S` and `_T` respectively (if `_S` is not one of `bool`, `int`, `float`, `str`, `NoneType` or `None`, the keys are first json-parsed from strings), and an ordered dict of the results is returned (`TypeError` is raised if `obj` is not an ordered dictionary);
+- it `t` is an `Enum` type, `t.__members__[obj]` is returned (`TypeError` is raised if `obj` is not a string or not in `t.__members__`)
 
 If `t` is not json-encodable according to `is_json_encodable(t)` then `TypeError` is raised.
 

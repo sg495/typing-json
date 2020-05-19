@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.5" />
+<title>typing_json.decoding API documentation</title>
+<meta name="description" content="The `typing_json.decoding` provides functionality for type-aware JSON-decoding of objects …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_CHTML'></script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>typing_json.decoding</code></h1>
+</header>
+<section id="section-intro">
+<p>The <a title="typing_json.decoding" href="#typing_json.decoding"><code>typing_json.decoding</code></a> provides functionality for type-aware JSON-decoding of objects.</p>
+<p>The core functionality is provided by <a title="typing_json.decoding.from_json_obj" href="#typing_json.decoding.from_json_obj"><code>from_json_obj()</code></a>, which can be used to
+turn JSON objects obtained from <a title="typing_json.encoding.to_json_obj" href="encoding.html#typing_json.encoding.to_json_obj"><code>to_json_obj()</code></a> back into instances of the original types.
+Types supported include JSON base types, typed collections from the <code>typing</code> module, literal types, union types,
+optional types and (certain) typed namedtuples.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#pylint:disable = line-too-long, invalid-name
+&#34;&#34;&#34;
+    The `typing_json.decoding` provides functionality for type-aware JSON-decoding of objects.
+
+    The core functionality is provided by `typing_json.decoding.from_json_obj`, which can be used to
+    turn JSON objects obtained from `typing_json.encoding.to_json_obj` back into instances of the original types.
+    Types supported include JSON base types, typed collections from the `typing` module, literal types, union types,
+    optional types and (certain) typed namedtuples.
+&#34;&#34;&#34;
+
+# standard imports
+from typing import Any, Union, List
+from collections import deque, OrderedDict
+from collections.abc import Mapping
+from decimal import Decimal, InvalidOperation
+from enum import EnumMeta
+import json
+
+# external dependencies
+from typing_extensions import Literal
+
+# internal imports
+from typing_json.typechecking import is_instance, is_namedtuple, JSON_BASE_TYPES, short_str
+from typing_json.encoding import is_json_encodable
+
+
+_UNREACHABLE_ERROR_MSG = &#34;Should never reach this point, please open an issue on GitHub.&#34;
+
+
+def from_json_obj(obj: Any, t: Any, cast_decimal: bool = True) -&gt; Any:
+    &#34;&#34;&#34;
+        Decodes a JSON object `obj` into an instance of a typecheckable type `t`.
+        This method raises `TypeError` if type `t` is not JSON encodable according to `typing_json.encoding.is_json_encodable`.
+        This method also raises `TypeError` if `obj` is not a valid JSON encoding for an instance of type `t`.
+
+        Currently, this method acts as follows on an JSON object `obj` and a JSON-encodable type `t`:
+
+        - if `t` is one of the JSON base types `bool`, `float`, `str`, `NoneType`, `obj` must be an instance of the type an is returned unchanged;
+        - if `t` is of the JSON base type `int` and the `cast_decimal` parameter is set to `False`, `obj` must be an instance of `int` and is returned unchanged;
+        - it `t` is of the JSON base type `int` and the `cast_decimal` parameter is set to `True` (its default value), `obj` can be either an instance of `int`, in which case it is returned unchanged, or an instance of `decimal.Decimal` encoding an integer, in which case `obj.to_integral_value()` is returned;
+        - if `t` is of the JSON base type `float` and the `cast_decimal` parameter is set to `False`, `obj` must be an instance of `float` and is returned unchanged;
+        - it `t` is of the JSON base type `float` and the `cast_decimal` parameter is set to `True` (its default value), `obj` can be either an instance of `float`, in which case it is returned unchanged, or an instance of `decimal.Decimal`, in which case `float(obj)` is returned;
+        - if `t` is `None`, used as an alias for `NoneType`, `obj` must be `None` and is returned unchanged;
+        - if `t` is `decimal.Decimal`, `obj` must be either an `int` or a `str` encoding a valid decimal, in which case `decimal.Decimal(obj)` is returned;
+        - if `t` is an enumeration, `obj` must be a key in the dictionary `t.__members__` of names for the enumeration constants, in which case `t.__members__[obj]` is returned;
+        - if `t` is a namedtuple (according to `typing_json.typechecking.is_namedtuple`), see below;
+        - if `t` is `typing.Union` or `typing.Optional`, try to decoded `obj` using the generic type arguments one after the other, until a suitable one is found;
+        - if `t` is `typing_extensions.Literal`, check that `obj` is one of the literals and return it unaltered;
+        - if `t` is `typing.List`, check that `obj` is a list and return a list with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Tuple`, check that `obj` is a list and return a tuple with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Deque`, check that `obj` is a list and return a deque with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Set`, check that `obj` is a list and return a set with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.FrozenSet`, check that `obj` is a list and return a frozenset with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Dict` or `typing.Mapping`, check that `obj` is a dict and return a dict with recursively JSON-decoded keys and values from `obj` (first parsing the keys from strings in all those cases where `typing_json.encoding.to_json_obj` would have stringified them);
+        - if `t` is `typing.OrderedDict`, check that `obj` is a `collections.OrderedDict` and return a `collections.OrderedDict` with recursively JSON-decoded keys and values from `obj` (first parsing the keys from strings in all those cases where `typing_json.encoding.to_json_obj` would have stringified them);
+
+        If `t` is a namedtuple (according to `typing_json.typechecking.is_namedtuple`), `obj` must be a dictionary (not necessarily ordered, although namedtuple are JSON-encoded as such).
+        The keys for the dictionary must form a subset of all field names for the namedtuple `t`, including at least all names of fields without default value.
+        An instance of `t` is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by `t`.
+    &#34;&#34;&#34;
+    # pylint: disable = too-many-branches, too-many-statements, too-many-return-statements
+    trace: List[str] = []
+    def failure_callback(message: str) -&gt; None:
+        trace.append(message)
+    if not is_json_encodable(t, failure_callback=failure_callback):
+        # Argument `t` must be JSON encodable.
+        raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
+    if t in JSON_BASE_TYPES:
+        # JSON base types are returned unaltered, with the exception of casting `Decimal` to `int`/`float` if `cast_decimal` is `True`.
+        if t == int and cast_decimal and isinstance(obj, Decimal) and obj == obj.to_integral_value():
+            return obj.to_integral_value()
+        if t == float and cast_decimal and isinstance(obj, Decimal):
+            return float(obj)
+        if not is_instance(obj, t, cast_decimal=cast_decimal):
+            raise TypeError(&#34;Object %s is not of json base type t=%s.&#34;%(short_str(obj), str(t)))
+        return obj
+    if t in (None, type(None)):
+        # The only value of `NoneType` is `None`, which is returned unaltered.
+        if obj is not None:
+            raise TypeError(&#34;Object %s is not None (t=%s).&#34;%(short_str(obj), str(t)))
+        return None
+    if t == Decimal:
+        # Instances of `decimal.Decimal` are decoded from either `int` of `string`
+        try:
+            if isinstance(obj, (int, str)) and obj is not True and obj is not False:
+                return Decimal(obj)
+        except InvalidOperation:
+            ...
+        raise TypeError(&#34;Object %s is not decimal.Decimal (t=%s).&#34;%(short_str(obj), str(t)))
+    if isinstance(t, EnumMeta):
+        # For enumerations, use the `t.__members__` dictionary to convert the string name into an enumeration value.
+        if not isinstance(obj, str):
+            raise TypeError(&#34;Object %s is not a string (t=%s).&#34;%(short_str(obj), str(t)))
+        if obj not in t.__members__:
+            raise TypeError(&#34;Object %s is not the string of a value of the enum (t=%s).&#34;%(short_str(obj), str(t)))
+        return t.__members__[obj] # pylint:disable=protected-access
+    if is_namedtuple(t):
+        # Namedtuples are decoded from dictionaries, not necessarily ordered (though they are encoded as ordered dictionaries).
+        if not isinstance(obj, (dict, OrderedDict)):
+            raise TypeError(&#34;Object %s is not (ordered) dictionary (t=%s).&#34;%(short_str(obj), str(t))) # pylint:disable=line-too-long
+        fields = getattr(t, &#34;_fields&#34;)
+        field_types = getattr(t, &#34;_field_types&#34;)
+        field_defaults = getattr(t, &#34;_field_defaults&#34;)
+        converted_dict: OrderedDict() = {} # type:ignore
+        if set(obj.keys()).union(set(field_defaults.keys())) != set(field_types.keys()):
+            # raise an error if the keys provided by the object together with the names of fields with default values don&#39;t yield exactly the names of all fields for the namedtuple
+            key_diff = set(obj.keys()).union(set(field_defaults.keys())) - set(field_types.keys())
+            if key_diff:
+                raise TypeError(&#34;Object %s does not have the required keys: t=%s, extra keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+            key_diff = set(field_types.keys()) - set(obj.keys()).union(set(field_defaults.keys()))
+            raise TypeError(&#34;Object %s does not have the required keys: t=%s, missing keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+        for field in fields:
+            field_type = field_types[field]
+            if not field in obj:
+                # for each field not appearing in the JSON object, use the field default value
+                converted_dict[field] = field_defaults[field]
+            else:
+                # for each field appearing in the JSON object, decoding the corresponding value
+                converted_dict[field] = from_json_obj(obj[field], field_type)
+        return_val = t(**converted_dict)
+        assert is_instance(return_val, t, cast_decimal=cast_decimal)
+        return return_val
+    if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
+        # `typing` generics
+        if t.__origin__ is Union:
+            # For `typing.Union` (and `typing.Optional`), attempt to decode the value using the generic type arguments in sequence
+            for s in t.__args__:
+                try:
+                    return_val = from_json_obj(obj, s)
+                    assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                    return return_val
+                except TypeError:
+                    continue
+            raise TypeError(&#34;Object %s is not convertible to any of the types in %s.&#34;%(short_str(obj), str(t)))
+        if t.__origin__ is Literal:
+            # for `typing_extensions.Literal`, check that the object is an instance of `t` and then return it unaltered
+            trace = []
+            if not is_instance(obj, t, failure_callback=failure_callback, cast_decimal=cast_decimal):
+                raise TypeError(&#34;Object %s is not allowed (t=%s). Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
+            return obj
+        if t.__origin__ is list:
+            # for `typing.List`, expect a list and return a list with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = list(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is deque:
+            # for `typing.Deque`, expect a list and return a deque with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = deque(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is set:
+            # for `typing.Set`, expect a list and return a set with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = set(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is frozenset:
+            # for `typing.FrozenSet`, expect a list and return a frozenset with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = frozenset(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is tuple:
+            # for `typing.Tuple`, expect a list and return a tuple with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
+                return_val = tuple(from_json_obj(x, t.__args__[0]) for x in obj)
+                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                return return_val
+            else:
+                if len(obj) != len(t.__args__):
+                    raise TypeError(&#34;List %s is of incorrect length (t=%s).&#34;%(short_str(obj), str(t)))
+                return_val = tuple(from_json_obj(x, t.__args__[i]) for i, x in enumerate(obj))
+                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                return return_val
+        if t.__origin__ in (dict, Mapping):
+            # for `typing.Dict` and `typing.Mapping`, expect a dict and return a dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
+            if not isinstance(obj, (dict, OrderedDict)):
+                raise TypeError(&#34;Object %s is not dict or OrderedDict (t=%s).&#34;%(short_str(obj), str(t)))
+            converted_dict = dict() # type:ignore
+            for field in obj:
+                if t.__args__[0] in JSON_BASE_TYPES:
+                    if not is_instance(field, t.__args__[0], cast_decimal=cast_decimal):
+                        raise TypeError(&#34;Object key %s is not of json base type %s (t=%s).&#34;%(field, str(t.__args__[0]), str(t)))
+                    converted_field = field
+                elif isinstance(t.__args__[0], EnumMeta) or hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal:
+                    converted_field = from_json_obj(field, t.__args__[0])
+                else:
+                    converted_field = from_json_obj(json.loads(field), t.__args__[0])
+                converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
+            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            return converted_dict
+        if t.__origin__ is OrderedDict:
+            # for `typing.OrderedDict`, expect a `collections.OrderedDict` and return an ordered dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
+            if not isinstance(obj, OrderedDict):
+                raise TypeError(&#34;Object %s is not dict or OrderedDict (t=%s).&#34;%(short_str(obj), str(t)))
+            converted_dict = OrderedDict() # type:ignore
+            for field in obj:
+                if t.__args__[0] in JSON_BASE_TYPES:
+                    if not isinstance(field, t.__args__[0]):
+                        raise TypeError(&#34;Object key %s not of json base type %s (t=%s).&#34;%(field, str(t.__args__[0]), str(t)))
+                    converted_field = field
+                elif isinstance(t.__args__[0], EnumMeta) or hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal:
+                    converted_field = from_json_obj(field, t.__args__[0])
+                else:
+                    converted_field = from_json_obj(json.loads(field), t.__args__[0])
+                converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
+            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            return converted_dict
+    raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="typing_json.decoding.from_json_obj"><code class="name flex">
+<span>def <span class="ident">from_json_obj</span></span>(<span>obj: Any, t: Any, cast_decimal: bool = True) -> Any</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Decodes a JSON object <code>obj</code> into an instance of a typecheckable type <code>t</code>.
+This method raises <code>TypeError</code> if type <code>t</code> is not JSON encodable according to <a title="typing_json.encoding.is_json_encodable" href="encoding.html#typing_json.encoding.is_json_encodable"><code>is_json_encodable()</code></a>.
+This method also raises <code>TypeError</code> if <code>obj</code> is not a valid JSON encoding for an instance of type <code>t</code>.</p>
+<p>Currently, this method acts as follows on an JSON object <code>obj</code> and a JSON-encodable type <code>t</code>:</p>
+<ul>
+<li>if <code>t</code> is one of the JSON base types <code>bool</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>, <code>obj</code> must be an instance of the type an is returned unchanged;</li>
+<li>if <code>t</code> is of the JSON base type <code>int</code> and the <code>cast_decimal</code> parameter is set to <code>False</code>, <code>obj</code> must be an instance of <code>int</code> and is returned unchanged;</li>
+<li>it <code>t</code> is of the JSON base type <code>int</code> and the <code>cast_decimal</code> parameter is set to <code>True</code> (its default value), <code>obj</code> can be either an instance of <code>int</code>, in which case it is returned unchanged, or an instance of <code>decimal.Decimal</code> encoding an integer, in which case <code>obj.to_integral_value()</code> is returned;</li>
+<li>if <code>t</code> is of the JSON base type <code>float</code> and the <code>cast_decimal</code> parameter is set to <code>False</code>, <code>obj</code> must be an instance of <code>float</code> and is returned unchanged;</li>
+<li>it <code>t</code> is of the JSON base type <code>float</code> and the <code>cast_decimal</code> parameter is set to <code>True</code> (its default value), <code>obj</code> can be either an instance of <code>float</code>, in which case it is returned unchanged, or an instance of <code>decimal.Decimal</code>, in which case <code>float(obj)</code> is returned;</li>
+<li>if <code>t</code> is <code>None</code>, used as an alias for <code>NoneType</code>, <code>obj</code> must be <code>None</code> and is returned unchanged;</li>
+<li>if <code>t</code> is <code>decimal.Decimal</code>, <code>obj</code> must be either an <code>int</code> or a <code>str</code> encoding a valid decimal, in which case <code>decimal.Decimal(obj)</code> is returned;</li>
+<li>if <code>t</code> is an enumeration, <code>obj</code> must be a key in the dictionary <code>t.__members__</code> of names for the enumeration constants, in which case <code>t.__members__[obj]</code> is returned;</li>
+<li>if <code>t</code> is a namedtuple (according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a>), see below;</li>
+<li>if <code>t</code> is <code>typing.Union</code> or <code>typing.Optional</code>, try to decoded <code>obj</code> using the generic type arguments one after the other, until a suitable one is found;</li>
+<li>if <code>t</code> is <code>typing_extensions.Literal</code>, check that <code>obj</code> is one of the literals and return it unaltered;</li>
+<li>if <code>t</code> is <code>typing.List</code>, check that <code>obj</code> is a list and return a list with recursively JSON-decoded elements of <code>obj</code> in it;</li>
+<li>if <code>t</code> is <code>typing.Tuple</code>, check that <code>obj</code> is a list and return a tuple with recursively JSON-decoded elements of <code>obj</code> in it;</li>
+<li>if <code>t</code> is <code>typing.Deque</code>, check that <code>obj</code> is a list and return a deque with recursively JSON-decoded elements of <code>obj</code> in it;</li>
+<li>if <code>t</code> is <code>typing.Set</code>, check that <code>obj</code> is a list and return a set with recursively JSON-decoded elements of <code>obj</code> in it;</li>
+<li>if <code>t</code> is <code>typing.FrozenSet</code>, check that <code>obj</code> is a list and return a frozenset with recursively JSON-decoded elements of <code>obj</code> in it;</li>
+<li>if <code>t</code> is <code>typing.Dict</code> or <code>typing.Mapping</code>, check that <code>obj</code> is a dict and return a dict with recursively JSON-decoded keys and values from <code>obj</code> (first parsing the keys from strings in all those cases where <a title="typing_json.encoding.to_json_obj" href="encoding.html#typing_json.encoding.to_json_obj"><code>to_json_obj()</code></a> would have stringified them);</li>
+<li>if <code>t</code> is <code>typing.OrderedDict</code>, check that <code>obj</code> is a <code>collections.OrderedDict</code> and return a <code>collections.OrderedDict</code> with recursively JSON-decoded keys and values from <code>obj</code> (first parsing the keys from strings in all those cases where <a title="typing_json.encoding.to_json_obj" href="encoding.html#typing_json.encoding.to_json_obj"><code>to_json_obj()</code></a> would have stringified them);</li>
+</ul>
+<p>If <code>t</code> is a namedtuple (according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a>), <code>obj</code> must be a dictionary (not necessarily ordered, although namedtuple are JSON-encoded as such).
+The keys for the dictionary must form a subset of all field names for the namedtuple <code>t</code>, including at least all names of fields without default value.
+An instance of <code>t</code> is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by <code>t</code>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def from_json_obj(obj: Any, t: Any, cast_decimal: bool = True) -&gt; Any:
+    &#34;&#34;&#34;
+        Decodes a JSON object `obj` into an instance of a typecheckable type `t`.
+        This method raises `TypeError` if type `t` is not JSON encodable according to `typing_json.encoding.is_json_encodable`.
+        This method also raises `TypeError` if `obj` is not a valid JSON encoding for an instance of type `t`.
+
+        Currently, this method acts as follows on an JSON object `obj` and a JSON-encodable type `t`:
+
+        - if `t` is one of the JSON base types `bool`, `float`, `str`, `NoneType`, `obj` must be an instance of the type an is returned unchanged;
+        - if `t` is of the JSON base type `int` and the `cast_decimal` parameter is set to `False`, `obj` must be an instance of `int` and is returned unchanged;
+        - it `t` is of the JSON base type `int` and the `cast_decimal` parameter is set to `True` (its default value), `obj` can be either an instance of `int`, in which case it is returned unchanged, or an instance of `decimal.Decimal` encoding an integer, in which case `obj.to_integral_value()` is returned;
+        - if `t` is of the JSON base type `float` and the `cast_decimal` parameter is set to `False`, `obj` must be an instance of `float` and is returned unchanged;
+        - it `t` is of the JSON base type `float` and the `cast_decimal` parameter is set to `True` (its default value), `obj` can be either an instance of `float`, in which case it is returned unchanged, or an instance of `decimal.Decimal`, in which case `float(obj)` is returned;
+        - if `t` is `None`, used as an alias for `NoneType`, `obj` must be `None` and is returned unchanged;
+        - if `t` is `decimal.Decimal`, `obj` must be either an `int` or a `str` encoding a valid decimal, in which case `decimal.Decimal(obj)` is returned;
+        - if `t` is an enumeration, `obj` must be a key in the dictionary `t.__members__` of names for the enumeration constants, in which case `t.__members__[obj]` is returned;
+        - if `t` is a namedtuple (according to `typing_json.typechecking.is_namedtuple`), see below;
+        - if `t` is `typing.Union` or `typing.Optional`, try to decoded `obj` using the generic type arguments one after the other, until a suitable one is found;
+        - if `t` is `typing_extensions.Literal`, check that `obj` is one of the literals and return it unaltered;
+        - if `t` is `typing.List`, check that `obj` is a list and return a list with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Tuple`, check that `obj` is a list and return a tuple with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Deque`, check that `obj` is a list and return a deque with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Set`, check that `obj` is a list and return a set with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.FrozenSet`, check that `obj` is a list and return a frozenset with recursively JSON-decoded elements of `obj` in it;
+        - if `t` is `typing.Dict` or `typing.Mapping`, check that `obj` is a dict and return a dict with recursively JSON-decoded keys and values from `obj` (first parsing the keys from strings in all those cases where `typing_json.encoding.to_json_obj` would have stringified them);
+        - if `t` is `typing.OrderedDict`, check that `obj` is a `collections.OrderedDict` and return a `collections.OrderedDict` with recursively JSON-decoded keys and values from `obj` (first parsing the keys from strings in all those cases where `typing_json.encoding.to_json_obj` would have stringified them);
+
+        If `t` is a namedtuple (according to `typing_json.typechecking.is_namedtuple`), `obj` must be a dictionary (not necessarily ordered, although namedtuple are JSON-encoded as such).
+        The keys for the dictionary must form a subset of all field names for the namedtuple `t`, including at least all names of fields without default value.
+        An instance of `t` is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by `t`.
+    &#34;&#34;&#34;
+    # pylint: disable = too-many-branches, too-many-statements, too-many-return-statements
+    trace: List[str] = []
+    def failure_callback(message: str) -&gt; None:
+        trace.append(message)
+    if not is_json_encodable(t, failure_callback=failure_callback):
+        # Argument `t` must be JSON encodable.
+        raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
+    if t in JSON_BASE_TYPES:
+        # JSON base types are returned unaltered, with the exception of casting `Decimal` to `int`/`float` if `cast_decimal` is `True`.
+        if t == int and cast_decimal and isinstance(obj, Decimal) and obj == obj.to_integral_value():
+            return obj.to_integral_value()
+        if t == float and cast_decimal and isinstance(obj, Decimal):
+            return float(obj)
+        if not is_instance(obj, t, cast_decimal=cast_decimal):
+            raise TypeError(&#34;Object %s is not of json base type t=%s.&#34;%(short_str(obj), str(t)))
+        return obj
+    if t in (None, type(None)):
+        # The only value of `NoneType` is `None`, which is returned unaltered.
+        if obj is not None:
+            raise TypeError(&#34;Object %s is not None (t=%s).&#34;%(short_str(obj), str(t)))
+        return None
+    if t == Decimal:
+        # Instances of `decimal.Decimal` are decoded from either `int` of `string`
+        try:
+            if isinstance(obj, (int, str)) and obj is not True and obj is not False:
+                return Decimal(obj)
+        except InvalidOperation:
+            ...
+        raise TypeError(&#34;Object %s is not decimal.Decimal (t=%s).&#34;%(short_str(obj), str(t)))
+    if isinstance(t, EnumMeta):
+        # For enumerations, use the `t.__members__` dictionary to convert the string name into an enumeration value.
+        if not isinstance(obj, str):
+            raise TypeError(&#34;Object %s is not a string (t=%s).&#34;%(short_str(obj), str(t)))
+        if obj not in t.__members__:
+            raise TypeError(&#34;Object %s is not the string of a value of the enum (t=%s).&#34;%(short_str(obj), str(t)))
+        return t.__members__[obj] # pylint:disable=protected-access
+    if is_namedtuple(t):
+        # Namedtuples are decoded from dictionaries, not necessarily ordered (though they are encoded as ordered dictionaries).
+        if not isinstance(obj, (dict, OrderedDict)):
+            raise TypeError(&#34;Object %s is not (ordered) dictionary (t=%s).&#34;%(short_str(obj), str(t))) # pylint:disable=line-too-long
+        fields = getattr(t, &#34;_fields&#34;)
+        field_types = getattr(t, &#34;_field_types&#34;)
+        field_defaults = getattr(t, &#34;_field_defaults&#34;)
+        converted_dict: OrderedDict() = {} # type:ignore
+        if set(obj.keys()).union(set(field_defaults.keys())) != set(field_types.keys()):
+            # raise an error if the keys provided by the object together with the names of fields with default values don&#39;t yield exactly the names of all fields for the namedtuple
+            key_diff = set(obj.keys()).union(set(field_defaults.keys())) - set(field_types.keys())
+            if key_diff:
+                raise TypeError(&#34;Object %s does not have the required keys: t=%s, extra keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+            key_diff = set(field_types.keys()) - set(obj.keys()).union(set(field_defaults.keys()))
+            raise TypeError(&#34;Object %s does not have the required keys: t=%s, missing keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+        for field in fields:
+            field_type = field_types[field]
+            if not field in obj:
+                # for each field not appearing in the JSON object, use the field default value
+                converted_dict[field] = field_defaults[field]
+            else:
+                # for each field appearing in the JSON object, decoding the corresponding value
+                converted_dict[field] = from_json_obj(obj[field], field_type)
+        return_val = t(**converted_dict)
+        assert is_instance(return_val, t, cast_decimal=cast_decimal)
+        return return_val
+    if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
+        # `typing` generics
+        if t.__origin__ is Union:
+            # For `typing.Union` (and `typing.Optional`), attempt to decode the value using the generic type arguments in sequence
+            for s in t.__args__:
+                try:
+                    return_val = from_json_obj(obj, s)
+                    assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                    return return_val
+                except TypeError:
+                    continue
+            raise TypeError(&#34;Object %s is not convertible to any of the types in %s.&#34;%(short_str(obj), str(t)))
+        if t.__origin__ is Literal:
+            # for `typing_extensions.Literal`, check that the object is an instance of `t` and then return it unaltered
+            trace = []
+            if not is_instance(obj, t, failure_callback=failure_callback, cast_decimal=cast_decimal):
+                raise TypeError(&#34;Object %s is not allowed (t=%s). Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
+            return obj
+        if t.__origin__ is list:
+            # for `typing.List`, expect a list and return a list with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = list(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is deque:
+            # for `typing.Deque`, expect a list and return a deque with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = deque(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is set:
+            # for `typing.Set`, expect a list and return a set with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = set(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is frozenset:
+            # for `typing.FrozenSet`, expect a list and return a frozenset with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            return_val = frozenset(from_json_obj(x, t.__args__[0]) for x in obj)
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if t.__origin__ is tuple:
+            # for `typing.Tuple`, expect a list and return a tuple with recursively JSON-decoded elements
+            if not isinstance(obj, list):
+                raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
+            if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
+                return_val = tuple(from_json_obj(x, t.__args__[0]) for x in obj)
+                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                return return_val
+            else:
+                if len(obj) != len(t.__args__):
+                    raise TypeError(&#34;List %s is of incorrect length (t=%s).&#34;%(short_str(obj), str(t)))
+                return_val = tuple(from_json_obj(x, t.__args__[i]) for i, x in enumerate(obj))
+                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                return return_val
+        if t.__origin__ in (dict, Mapping):
+            # for `typing.Dict` and `typing.Mapping`, expect a dict and return a dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
+            if not isinstance(obj, (dict, OrderedDict)):
+                raise TypeError(&#34;Object %s is not dict or OrderedDict (t=%s).&#34;%(short_str(obj), str(t)))
+            converted_dict = dict() # type:ignore
+            for field in obj:
+                if t.__args__[0] in JSON_BASE_TYPES:
+                    if not is_instance(field, t.__args__[0], cast_decimal=cast_decimal):
+                        raise TypeError(&#34;Object key %s is not of json base type %s (t=%s).&#34;%(field, str(t.__args__[0]), str(t)))
+                    converted_field = field
+                elif isinstance(t.__args__[0], EnumMeta) or hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal:
+                    converted_field = from_json_obj(field, t.__args__[0])
+                else:
+                    converted_field = from_json_obj(json.loads(field), t.__args__[0])
+                converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
+            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            return converted_dict
+        if t.__origin__ is OrderedDict:
+            # for `typing.OrderedDict`, expect a `collections.OrderedDict` and return an ordered dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
+            if not isinstance(obj, OrderedDict):
+                raise TypeError(&#34;Object %s is not dict or OrderedDict (t=%s).&#34;%(short_str(obj), str(t)))
+            converted_dict = OrderedDict() # type:ignore
+            for field in obj:
+                if t.__args__[0] in JSON_BASE_TYPES:
+                    if not isinstance(field, t.__args__[0]):
+                        raise TypeError(&#34;Object key %s not of json base type %s (t=%s).&#34;%(field, str(t.__args__[0]), str(t)))
+                    converted_field = field
+                elif isinstance(t.__args__[0], EnumMeta) or hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal:
+                    converted_field = from_json_obj(field, t.__args__[0])
+                else:
+                    converted_field = from_json_obj(json.loads(field), t.__args__[0])
+                converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
+            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            return converted_dict
+    raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="typing_json" href="index.html">typing_json</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="typing_json.decoding.from_json_obj" href="#typing_json.decoding.from_json_obj">from_json_obj</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
