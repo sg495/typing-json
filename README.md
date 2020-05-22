@@ -62,6 +62,7 @@ The optional parameter `failure_callback` can be used to pass a `Callable[[str],
 The following provides an example of usage:
 
 ```python
+# Python 3.7.4
 >>> from typing import Dict, List, Set, Tuple
 >>> from typing_json import is_json_encodable
 >>> error_log = []
