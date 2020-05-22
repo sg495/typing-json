@@ -60,6 +60,13 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -> Any:
         If `t` is a namedtuple (according to `typing_json.typechecking.is_namedtuple`), `obj` must be a dictionary (not necessarily ordered, although namedtuple are JSON-encoded as such).
         The keys for the dictionary must form a subset of all field names for the namedtuple `t`, including at least all names of fields without default value.
         An instance of `t` is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by `t`.
+
+        As an exception to the above rule, decoding of namedtuples is allowed from lists of values, in the same order as the namedtuple fields they are to be assigned to.
+        Missing values are allowed at the end and are filled with default field values.
+        No excess values are allowed.
+        This is to support the default `json` library behaviour on namedtuples, encoded as lists of field values.
+
+        (Version 0.1.1.post1)
     """
     # pylint: disable = too-many-branches, too-many-statements, too-many-return-statements
     trace: List[str] = []
@@ -102,12 +109,19 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -> Any:
             raise TypeError("Object %s is not the string of a value of the enum (t=%s)."%(short_str(obj), str(t)))
         return t.__members__[obj] # type: ignore # pylint:disable=protected-access
     if is_namedtuple(t):
-        # Namedtuples are decoded from dictionaries, not necessarily ordered (though they are encoded as ordered dictionaries).
-        if not isinstance(obj, (dict, OrderedDict)):
-            raise TypeError("Object %s is not (ordered) dictionary (t=%s)."%(short_str(obj), str(t))) # pylint:disable=line-too-long
         fields = getattr(t, "_fields")
         field_types = getattr(t, "_field_types")
         field_defaults = getattr(t, "_field_defaults")
+        if isinstance(obj, list):
+            # there is a special provision for decoding namedtuples from lists (the standard encoding done by the builtin json library)
+            if len(fields) < len(obj):
+                raise TypeError("Object %s provides too many values for namedtuple type t=%s."%(short_str(obj), str(t)))
+            return_val = t(*tuple(from_json_obj(obj[i] if i < len(obj) else field_defaults[field], field_types[field], cast_decimal=cast_decimal) for i, field in enumerate(fields)))
+            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return return_val
+        if not isinstance(obj, (dict, OrderedDict)):
+            # Namedtuples are ordinarily decoded from dictionaries, not necessarily ordered (though they are encoded as ordered dictionaries).
+            raise TypeError("Object %s is not (ordered) dictionary (t=%s)."%(short_str(obj), str(t))) # pylint:disable=line-too-long
         converted_dict: OrderedDict() = {} # type:ignore
         if set(obj.keys()).union(set(field_defaults.keys())) != set(field_types.keys()):
             # raise an error if the keys provided by the object together with the names of fields with default values don't yield exactly the names of all fields for the namedtuple

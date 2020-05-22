@@ -190,6 +190,10 @@ class NamedTupleExampleT(NamedTuple):
     value: Union[int, float]
     flag: bool = False
 
+class NamedTupleNastyExampleT(NamedTuple):
+    name: str
+    value: Dict[str, float]
+    flag: bool = False
 
 def test_is_json_encodable_namedtuple():
     """
@@ -197,7 +201,17 @@ def test_is_json_encodable_namedtuple():
     """
     t = NamedTupleExampleT("t", 1)
     t_encoding = OrderedDict([("name", "t"), ("value", 1)])
-    from_json_obj(t_encoding, NamedTupleExampleT) == t
+    assert from_json_obj(t_encoding, NamedTupleExampleT) == t
+    nt = NamedTupleNastyExampleT("t", {"x": 1.0, "y": 0.0})
+    nt_encoding_list = ["t", {"x": Decimal("1.0"), "y": 0}]
+    assert from_json_obj(nt_encoding_list, NamedTupleNastyExampleT) == nt
+    nt_encoding_list_long = ["t", {"x": Decimal("1.0"), "y": 0}, False]
+    assert from_json_obj(nt_encoding_list_long, NamedTupleNastyExampleT) == nt
+    try:
+        nt_encoding_list_too_long = ["t", {"x": Decimal("1.0"), "y": 0}, False, 1]
+        from_json_obj(nt_encoding_list_too_long, NamedTupleNastyExampleT) == nt
+    except TypeError:
+        assert True
 
 
 WRONG_TYPE_ENCODINGS = [
