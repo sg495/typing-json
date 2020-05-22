@@ -14,6 +14,12 @@ The function `is_instance` extends the functionality of the builtin `isinstance`
 
 The [documentation](https://sg495.github.io/typing-json/typing_json/index.html) for this library was generated with [pdoc](https://pdoc3.github.io/pdoc/).
 
+You can install the `typing_json` library with pip:
+
+```
+pip install typing_json
+```
+
 
 ## Main goals
 
