@@ -25,6 +25,7 @@
 <p>The core functionality is provided by <a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance"><code>is_instance()</code></a>, which extends
 the builtin <code>isinstance</code> to deal with certain typed collections created using the <code>typing</code> module,
 as well as literal types, optional types, unions and (certain) typed namedtuples.</p>
+<p>(Version: 0.1.0)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -36,6 +37,8 @@ as well as literal types, optional types, unions and (certain) typed namedtuples
     The core functionality is provided by `typing_json.typechecking.is_instance`, which extends
     the builtin `isinstance` to deal with certain typed collections created using the `typing` module,
     as well as literal types, optional types, unions and (certain) typed namedtuples.
+
+    (Version: 0.1.0)
 &#34;&#34;&#34;
 
 # standard imports
@@ -44,7 +47,7 @@ from collections.abc import Mapping
 from decimal import Decimal
 from enum import EnumMeta
 import textwrap
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Tuple, Type, Union
 
 # external dependencies
 from typing_extensions import Literal
@@ -72,7 +75,7 @@ def _not_keyable(message: str, failure_callback: Optional[Callable[[str], None]]
     return False
 
 
-def is_keyable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -&gt; bool:
+def is_keyable(t: Type, failure_callback: Optional[Callable[[str], None]] = None) -&gt; bool:
     &#34;&#34;&#34;
         Check whether `t` is a type that can be used as a key when encoding/decoding mappings
         using this library.
@@ -152,11 +155,11 @@ def is_typecheckable(t: Any, failure_callback: Optional[Callable[[str], None]] =
 
         At present, a type is typecheckable if it satisfies one of the following conditions:
 
-        - it is one of the base typecheckable types: `bool`, `int`, `float`, `decimal.Decimal`, `complex`, `str`, `bytes`, `bytearray`, `memoryview`, `list`, `tuple`, `range`, `slice`, `set`, `frozenset`, `dict`, `type`, `collections.deque`, `collections.OrderedDict`, `object`;
+        - it is one of the basic typecheckable types: `bool`, `int`, `float`, `decimal.Decimal`, `complex`, `str`, `bytes`, `bytearray`, `memoryview`, `list`, `tuple`, `range`, `slice`, `set`, `frozenset`, `dict`, `type`, `collections.deque`, `collections.OrderedDict`, `object`;
         - it is `None`, `typing.Any` or an enumeration (i.e. `isinstance(t, EnumMeta)`);
         - it is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or variadic `typing.Tuple` and its generic type argument is typecheckable;
         - it is one of `typing.Dict`, `typing.OrderedDict`, `typing.Mapping`, `typing.Union` or fixed-length `typing.Tuple` and all of its generic type arguments are typecheckable;
-        - it is a `typing.Literal` including literals of one of the JSON base types `bool`, `int`, `float`, `str` or `NoneType`;
+        - it is a `typing.Literal` including literals of one of the JSON basic types `bool`, `int`, `float`, `str` or `NoneType`;
         - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type.
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches
@@ -191,10 +194,10 @@ def is_typecheckable(t: Any, failure_callback: Optional[Callable[[str], None]] =
                     return True
             return _not_typecheckable(&#34;Not all type arguments of type %s are typecheckable.&#34;%str(t), failure_callback=failure_callback)
         if t.__origin__ is Literal:
-            # The type `typing_extensions.Literal` is typecheckable if all of its type arguments are of JSON base type.
+            # The type `typing_extensions.Literal` is typecheckable if all of its type arguments are of JSON basic type.
             if all(isinstance(s, JSON_BASE_TYPES) for s in t.__args__):
                 return True
-            return _not_typecheckable(&#34;Not all type arguments of literal type %s are of JSON base type.&#34;%str(t), failure_callback=failure_callback)
+            return _not_typecheckable(&#34;Not all type arguments of literal type %s are of JSON basic type.&#34;%str(t), failure_callback=failure_callback)
     if is_namedtuple(t, failure_callback=failure_callback):
         # Types inheriting from `typing.NamedTuple` are typecheckable, because `is_namedtuple` already
         # enforces fields to be of typecheckable type.
@@ -206,7 +209,7 @@ def short_str(obj: Any) -&gt; str:
     &#34;&#34;&#34; Returns a shortened string representation of `obj`, for use in error messages. &#34;&#34;&#34;
     if isinstance(obj, str):
         return &#34;\&#34;&#34;+obj+&#34;\&#34;&#34;
-    return textwrap.shorten(str(obj), width=30, placeholder=&#34;...&#34;)
+    return textwrap.shorten(repr(obj), width=30, placeholder=&#34;...&#34;)
 
 
 def _not_instance(message: str, failure_callback: Optional[Callable[[str], None]]) -&gt; Literal[False]:
@@ -216,38 +219,37 @@ def _not_instance(message: str, failure_callback: Optional[Callable[[str], None]
     return False
 
 
-def is_instance(obj: Any, t: Any, failure_callback: Optional[Callable[[str], None]] = None, cast_decimal: bool = True) -&gt; bool:
+def is_instance(obj: Any, t: Type, failure_callback: Optional[Callable[[str], None]] = None, cast_decimal: bool = True) -&gt; bool:
     &#34;&#34;&#34;
         Checks whether an object `obj` is an instance of type `t`, extending the dynamical typechecking capabilities of the
         builtin `isinstance` to some of the `typing` generics and to certain types constructed with `typing.NamedTuple`.
-        On the base typecheckable types (cf.&amp;nbsp;`typing_json.typechecking.is_typecheckable`), it acts as the builtin `isinstance`,
-        with two exceptions:
+        On the basic typecheckable types (cf.&amp;nbsp;`typing_json.typechecking.is_typecheckable`), it acts as the builtin `isinstance`,
+        with tje following exceptions:
 
-        - if the optional parameter `cast_decimal` is set to `True`, instances of `decimal.Decimal` encoding integers will be deemed of type `int` by this method (cf.&amp;nbsp;below);
-        - the boolean literals `True` and `False` will not be deemed of type `int` by this method (cf.&amp;nbsp;https://www.python.org/dev/peps/pep-0285/).
+        - if the optional parameter `cast_decimal` is set to `True`, instances of `decimal.Decimal` are deemed to be instances of `float` (and `int` if integral) by this function;
+        - the boolean literals `True` and `False` are not deemed of type `int` by this function (cf.&amp;nbsp;https://www.python.org/dev/peps/pep-0285/).
+        - instances of `int` are deemed to be instances of `float` by this function.
 
-        The optional parameter `failure_callback` can be used to collect a detailed trace of
-        the reasons behind this method returning `False` on a given object `obj` and type `t`.
+        The optional parameter `failure_callback` can be used to collect a detailed trace of the reasons behind this function returning `False` on a given object `obj` and type `t`.
 
         The optional parameter `cast_decimal` (default:&amp;nbsp;`True`) can be used to specify that objects of type `decimal.Decimal`
-        which encode integers have to be deemed of type `int`:
+        which encode integers have to be deemed of type `int` or `float`:
 
         ```python
             &gt;&gt;&gt; from decimal import Decimal
             &gt;&gt;&gt; is_instance(Decimal(1), int, cast_decimal=True)
             True
+            &gt;&gt;&gt; is_instance(Decimal(1.1), float, cast_decimal=True)
+            True
             &gt;&gt;&gt; is_instance(Decimal(1.1), int, cast_decimal=True)
             False
             &gt;&gt;&gt; is_instance(Decimal(1), int, cast_decimal=False)
             False
-            &gt;&gt;&gt; is_instance(Decimal(1), Decimal, cast_decimal=True)
-            True
-            &gt;&gt;&gt; is_instance(Decimal(1), Decimal, cast_decimal=False)
-            True
+            &gt;&gt;&gt; is_instance(Decimal(1.1), float, cast_decimal=False)
+            False
         ```
 
-        More generally, if `cast_decimal` is `True` objects of type `decimal.Decimal` will be deemed of type `float`.
-        Literals in `typing_extensions.Literal` can only be of one of the JSON base types `bool`, `int`, `float`, `str`, `NoneType`.
+        Literals in `typing_extensions.Literal` can only be of one of the JSON basic types `bool`, `int`, `float`, `str`, `NoneType`.
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches, too-many-statements
     if t in TYPECHECKABLE_BASE_TYPES:
@@ -260,6 +262,8 @@ def is_instance(obj: Any, t: Any, failure_callback: Optional[Callable[[str], Non
             return True
         if t == float and isinstance(obj, Decimal) and cast_decimal:
             # special case to deal with `decimal.Decimal` being used to encode floats:
+            return True
+        if t == float and isinstance(obj, int) and obj is not True and obj is not False:
             return True
         if isinstance(obj, t):
             return True
@@ -274,7 +278,7 @@ def is_instance(obj: Any, t: Any, failure_callback: Optional[Callable[[str], Non
         return True
     if isinstance(t, EnumMeta):
         # For enums, check whether `obj` is one of the values of the enumeration `t`.
-        if obj in t.__members__.values():
+        if obj in t.__members__.values(): # type: ignore
             return True
         return _not_instance(&#34;Value %s is not of enum type %s.&#34;%(short_str(obj), str(t)), failure_callback=failure_callback)
     if is_namedtuple(t, failure_callback=failure_callback):
@@ -391,7 +395,7 @@ def _not_namedtuple(message: str, failure_callback: Optional[Callable[[str], Non
     return False
 
 
-def is_namedtuple(t: Any, failure_callback: Optional[Callable[[str], None]] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) -&gt; bool:
+def is_namedtuple(t: Type, failure_callback: Optional[Callable[[str], None]] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) -&gt; bool:
     &#34;&#34;&#34;
         Checks whether `t` is a type constructed using `typing.NamedTuple`, using the following procedure:
 
@@ -482,71 +486,69 @@ def is_namedtuple(t: Any, failure_callback: Optional[Callable[[str], None]] = No
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="typing_json.typechecking.is_instance"><code class="name flex">
-<span>def <span class="ident">is_instance</span></span>(<span>obj: Any, t: Any, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, cast_decimal: bool = True) -> bool</span>
+<span>def <span class="ident">is_instance</span></span>(<span>obj: Any, t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, cast_decimal: bool = True) -> bool</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Checks whether an object <code>obj</code> is an instance of type <code>t</code>, extending the dynamical typechecking capabilities of the
 builtin <code>isinstance</code> to some of the <code>typing</code> generics and to certain types constructed with <code>typing.NamedTuple</code>.
-On the base typecheckable types (cf.&nbsp;<a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a>), it acts as the builtin <code>isinstance</code>,
-with two exceptions:</p>
+On the basic typecheckable types (cf.&nbsp;<a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a>), it acts as the builtin <code>isinstance</code>,
+with tje following exceptions:</p>
 <ul>
-<li>if the optional parameter <code>cast_decimal</code> is set to <code>True</code>, instances of <code>decimal.Decimal</code> encoding integers will be deemed of type <code>int</code> by this method (cf.&nbsp;below);</li>
-<li>the boolean literals <code>True</code> and <code>False</code> will not be deemed of type <code>int</code> by this method (cf.&nbsp;<a href="https://www.python.org/dev/peps/pep-0285/">https://www.python.org/dev/peps/pep-0285/</a>).</li>
+<li>if the optional parameter <code>cast_decimal</code> is set to <code>True</code>, instances of <code>decimal.Decimal</code> are deemed to be instances of <code>float</code> (and <code>int</code> if integral) by this function;</li>
+<li>the boolean literals <code>True</code> and <code>False</code> are not deemed of type <code>int</code> by this function (cf.&nbsp;<a href="https://www.python.org/dev/peps/pep-0285/">https://www.python.org/dev/peps/pep-0285/</a>).</li>
+<li>instances of <code>int</code> are deemed to be instances of <code>float</code> by this function.</li>
 </ul>
-<p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of
-the reasons behind this method returning <code>False</code> on a given object <code>obj</code> and type <code>t</code>.</p>
+<p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of the reasons behind this function returning <code>False</code> on a given object <code>obj</code> and type <code>t</code>.</p>
 <p>The optional parameter <code>cast_decimal</code> (default:&nbsp;<code>True</code>) can be used to specify that objects of type <code>decimal.Decimal</code>
-which encode integers have to be deemed of type <code>int</code>:</p>
+which encode integers have to be deemed of type <code>int</code> or <code>float</code>:</p>
 <pre><code class="python">    &gt;&gt;&gt; from decimal import Decimal
     &gt;&gt;&gt; is_instance(Decimal(1), int, cast_decimal=True)
+    True
+    &gt;&gt;&gt; is_instance(Decimal(1.1), float, cast_decimal=True)
     True
     &gt;&gt;&gt; is_instance(Decimal(1.1), int, cast_decimal=True)
     False
     &gt;&gt;&gt; is_instance(Decimal(1), int, cast_decimal=False)
     False
-    &gt;&gt;&gt; is_instance(Decimal(1), Decimal, cast_decimal=True)
-    True
-    &gt;&gt;&gt; is_instance(Decimal(1), Decimal, cast_decimal=False)
-    True
+    &gt;&gt;&gt; is_instance(Decimal(1.1), float, cast_decimal=False)
+    False
 </code></pre>
-<p>More generally, if <code>cast_decimal</code> is <code>True</code> objects of type <code>decimal.Decimal</code> will be deemed of type <code>float</code>.
-Literals in <code>typing_extensions.Literal</code> can only be of one of the JSON base types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>.</p></section>
+<p>Literals in <code>typing_extensions.Literal</code> can only be of one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_instance(obj: Any, t: Any, failure_callback: Optional[Callable[[str], None]] = None, cast_decimal: bool = True) -&gt; bool:
+<pre><code class="python">def is_instance(obj: Any, t: Type, failure_callback: Optional[Callable[[str], None]] = None, cast_decimal: bool = True) -&gt; bool:
     &#34;&#34;&#34;
         Checks whether an object `obj` is an instance of type `t`, extending the dynamical typechecking capabilities of the
         builtin `isinstance` to some of the `typing` generics and to certain types constructed with `typing.NamedTuple`.
-        On the base typecheckable types (cf.&amp;nbsp;`typing_json.typechecking.is_typecheckable`), it acts as the builtin `isinstance`,
-        with two exceptions:
+        On the basic typecheckable types (cf.&amp;nbsp;`typing_json.typechecking.is_typecheckable`), it acts as the builtin `isinstance`,
+        with tje following exceptions:
 
-        - if the optional parameter `cast_decimal` is set to `True`, instances of `decimal.Decimal` encoding integers will be deemed of type `int` by this method (cf.&amp;nbsp;below);
-        - the boolean literals `True` and `False` will not be deemed of type `int` by this method (cf.&amp;nbsp;https://www.python.org/dev/peps/pep-0285/).
+        - if the optional parameter `cast_decimal` is set to `True`, instances of `decimal.Decimal` are deemed to be instances of `float` (and `int` if integral) by this function;
+        - the boolean literals `True` and `False` are not deemed of type `int` by this function (cf.&amp;nbsp;https://www.python.org/dev/peps/pep-0285/).
+        - instances of `int` are deemed to be instances of `float` by this function.
 
-        The optional parameter `failure_callback` can be used to collect a detailed trace of
-        the reasons behind this method returning `False` on a given object `obj` and type `t`.
+        The optional parameter `failure_callback` can be used to collect a detailed trace of the reasons behind this function returning `False` on a given object `obj` and type `t`.
 
         The optional parameter `cast_decimal` (default:&amp;nbsp;`True`) can be used to specify that objects of type `decimal.Decimal`
-        which encode integers have to be deemed of type `int`:
+        which encode integers have to be deemed of type `int` or `float`:
 
         ```python
             &gt;&gt;&gt; from decimal import Decimal
             &gt;&gt;&gt; is_instance(Decimal(1), int, cast_decimal=True)
             True
+            &gt;&gt;&gt; is_instance(Decimal(1.1), float, cast_decimal=True)
+            True
             &gt;&gt;&gt; is_instance(Decimal(1.1), int, cast_decimal=True)
             False
             &gt;&gt;&gt; is_instance(Decimal(1), int, cast_decimal=False)
             False
-            &gt;&gt;&gt; is_instance(Decimal(1), Decimal, cast_decimal=True)
-            True
-            &gt;&gt;&gt; is_instance(Decimal(1), Decimal, cast_decimal=False)
-            True
+            &gt;&gt;&gt; is_instance(Decimal(1.1), float, cast_decimal=False)
+            False
         ```
 
-        More generally, if `cast_decimal` is `True` objects of type `decimal.Decimal` will be deemed of type `float`.
-        Literals in `typing_extensions.Literal` can only be of one of the JSON base types `bool`, `int`, `float`, `str`, `NoneType`.
+        Literals in `typing_extensions.Literal` can only be of one of the JSON basic types `bool`, `int`, `float`, `str`, `NoneType`.
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches, too-many-statements
     if t in TYPECHECKABLE_BASE_TYPES:
@@ -559,6 +561,8 @@ Literals in <code>typing_extensions.Literal</code> can only be of one of the JSO
             return True
         if t == float and isinstance(obj, Decimal) and cast_decimal:
             # special case to deal with `decimal.Decimal` being used to encode floats:
+            return True
+        if t == float and isinstance(obj, int) and obj is not True and obj is not False:
             return True
         if isinstance(obj, t):
             return True
@@ -573,7 +577,7 @@ Literals in <code>typing_extensions.Literal</code> can only be of one of the JSO
         return True
     if isinstance(t, EnumMeta):
         # For enums, check whether `obj` is one of the values of the enumeration `t`.
-        if obj in t.__members__.values():
+        if obj in t.__members__.values(): # type: ignore
             return True
         return _not_instance(&#34;Value %s is not of enum type %s.&#34;%(short_str(obj), str(t)), failure_callback=failure_callback)
     if is_namedtuple(t, failure_callback=failure_callback):
@@ -684,7 +688,7 @@ Literals in <code>typing_extensions.Literal</code> can only be of one of the JSO
 </details>
 </dd>
 <dt id="typing_json.typechecking.is_keyable"><code class="name flex">
-<span>def <span class="ident">is_keyable</span></span>(<span>t: Any, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) -> bool</span>
+<span>def <span class="ident">is_keyable</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) -> bool</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Check whether <code>t</code> is a type that can be used as a key when encoding/decoding mappings
@@ -706,7 +710,7 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_keyable(t: Any, failure_callback: Optional[Callable[[str], None]] = None) -&gt; bool:
+<pre><code class="python">def is_keyable(t: Type, failure_callback: Optional[Callable[[str], None]] = None) -&gt; bool:
     &#34;&#34;&#34;
         Check whether `t` is a type that can be used as a key when encoding/decoding mappings
         using this library.
@@ -768,7 +772,7 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 </details>
 </dd>
 <dt id="typing_json.typechecking.is_namedtuple"><code class="name flex">
-<span>def <span class="ident">is_namedtuple</span></span>(<span>t: Any, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) -> bool</span>
+<span>def <span class="ident">is_namedtuple</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) -> bool</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Checks whether <code>t</code> is a type constructed using <code>typing.NamedTuple</code>, using the following procedure:</p>
@@ -795,7 +799,7 @@ of the optional parameter <code>cast_decimal</code> is passed to <a title="typin
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_namedtuple(t: Any, failure_callback: Optional[Callable[[str], None]] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) -&gt; bool:
+<pre><code class="python">def is_namedtuple(t: Type, failure_callback: Optional[Callable[[str], None]] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) -&gt; bool:
     &#34;&#34;&#34;
         Checks whether `t` is a type constructed using `typing.NamedTuple`, using the following procedure:
 
@@ -875,11 +879,11 @@ by <a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechec
 the reasons behind this method returning <code>False</code> on a given type <code>t</code>.</p>
 <p>At present, a type is typecheckable if it satisfies one of the following conditions:</p>
 <ul>
-<li>it is one of the base typecheckable types: <code>bool</code>, <code>int</code>, <code>float</code>, <code>decimal.Decimal</code>, <code>complex</code>, <code>str</code>, <code>bytes</code>, <code>bytearray</code>, <code>memoryview</code>, <code>list</code>, <code>tuple</code>, <code>range</code>, <code>slice</code>, <code>set</code>, <code>frozenset</code>, <code>dict</code>, <code>type</code>, <code>collections.deque</code>, <code>collections.OrderedDict</code>, <code>object</code>;</li>
+<li>it is one of the basic typecheckable types: <code>bool</code>, <code>int</code>, <code>float</code>, <code>decimal.Decimal</code>, <code>complex</code>, <code>str</code>, <code>bytes</code>, <code>bytearray</code>, <code>memoryview</code>, <code>list</code>, <code>tuple</code>, <code>range</code>, <code>slice</code>, <code>set</code>, <code>frozenset</code>, <code>dict</code>, <code>type</code>, <code>collections.deque</code>, <code>collections.OrderedDict</code>, <code>object</code>;</li>
 <li>it is <code>None</code>, <code>typing.Any</code> or an enumeration (i.e. <code>isinstance(t, EnumMeta)</code>);</li>
 <li>it is one of <code>typing.List</code>, <code>typing.Set</code>, <code>typing.FrozenSet</code>, <code>typing.Deque</code>, <code>typing.Optional</code> or variadic <code>typing.Tuple</code> and its generic type argument is typecheckable;</li>
 <li>it is one of <code>typing.Dict</code>, <code>typing.OrderedDict</code>, <code>typing.Mapping</code>, <code>typing.Union</code> or fixed-length <code>typing.Tuple</code> and all of its generic type arguments are typecheckable;</li>
-<li>it is a <code>typing.Literal</code> including literals of one of the JSON base types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code> or <code>NoneType</code>;</li>
+<li>it is a <code>typing.Literal</code> including literals of one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code> or <code>NoneType</code>;</li>
 <li>it is a named tuple according to <a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all of its fields are of typecheckable type.</li>
 </ul></section>
 <details class="source">
@@ -898,11 +902,11 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 
         At present, a type is typecheckable if it satisfies one of the following conditions:
 
-        - it is one of the base typecheckable types: `bool`, `int`, `float`, `decimal.Decimal`, `complex`, `str`, `bytes`, `bytearray`, `memoryview`, `list`, `tuple`, `range`, `slice`, `set`, `frozenset`, `dict`, `type`, `collections.deque`, `collections.OrderedDict`, `object`;
+        - it is one of the basic typecheckable types: `bool`, `int`, `float`, `decimal.Decimal`, `complex`, `str`, `bytes`, `bytearray`, `memoryview`, `list`, `tuple`, `range`, `slice`, `set`, `frozenset`, `dict`, `type`, `collections.deque`, `collections.OrderedDict`, `object`;
         - it is `None`, `typing.Any` or an enumeration (i.e. `isinstance(t, EnumMeta)`);
         - it is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or variadic `typing.Tuple` and its generic type argument is typecheckable;
         - it is one of `typing.Dict`, `typing.OrderedDict`, `typing.Mapping`, `typing.Union` or fixed-length `typing.Tuple` and all of its generic type arguments are typecheckable;
-        - it is a `typing.Literal` including literals of one of the JSON base types `bool`, `int`, `float`, `str` or `NoneType`;
+        - it is a `typing.Literal` including literals of one of the JSON basic types `bool`, `int`, `float`, `str` or `NoneType`;
         - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type.
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches
@@ -937,10 +941,10 @@ the reasons behind this method returning <code>False</code> on a given type <cod
                     return True
             return _not_typecheckable(&#34;Not all type arguments of type %s are typecheckable.&#34;%str(t), failure_callback=failure_callback)
         if t.__origin__ is Literal:
-            # The type `typing_extensions.Literal` is typecheckable if all of its type arguments are of JSON base type.
+            # The type `typing_extensions.Literal` is typecheckable if all of its type arguments are of JSON basic type.
             if all(isinstance(s, JSON_BASE_TYPES) for s in t.__args__):
                 return True
-            return _not_typecheckable(&#34;Not all type arguments of literal type %s are of JSON base type.&#34;%str(t), failure_callback=failure_callback)
+            return _not_typecheckable(&#34;Not all type arguments of literal type %s are of JSON basic type.&#34;%str(t), failure_callback=failure_callback)
     if is_namedtuple(t, failure_callback=failure_callback):
         # Types inheriting from `typing.NamedTuple` are typecheckable, because `is_namedtuple` already
         # enforces fields to be of typecheckable type.
@@ -961,7 +965,7 @@ the reasons behind this method returning <code>False</code> on a given type <cod
     &#34;&#34;&#34; Returns a shortened string representation of `obj`, for use in error messages. &#34;&#34;&#34;
     if isinstance(obj, str):
         return &#34;\&#34;&#34;+obj+&#34;\&#34;&#34;
-    return textwrap.shorten(str(obj), width=30, placeholder=&#34;...&#34;)</code></pre>
+    return textwrap.shorten(repr(obj), width=30, placeholder=&#34;...&#34;)</code></pre>
 </details>
 </dd>
 </dl>

@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="typing-json",
-    version="0.0.7",
+    version="0.1.0",
     author="sg495",
     author_email="sg495@users.noreply.github.com",
     description="Add typing support to python JSON serialization.",
@@ -19,7 +19,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Natural Language :: English",
         "Typing :: Typed",
     ],

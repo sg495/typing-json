@@ -20,13 +20,15 @@
     The function `typing_json.typechecking.is_instance` deviates from the behaviour of the builtin `isinstance` on the literals `True`/`False`,
     which are not deemed of type `int`, and on integral instances of `decimal.Decimal`, which are deemed of type `int` if the optional parameter
     `cast_decimal` is set to `True` (its default value).
+
+    (Version: 0.1.0)
 """
 
 # standard imports
 import collections
 from decimal import Decimal
 import json
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Type
 
 # internal imports
 from typing_json.decoding import from_json_obj
@@ -35,10 +37,9 @@ from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_
 
 
 name: str = "typing_json"
-__version__: str = "0.0.7"
+__version__: str = "0.1.0"
 
-
-def dump(obj: Any, encoded_type: Any, fp, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, default=None, sort_keys=False, **kw):
+def dump(obj: Any, encoded_type: Type, fp, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, default=None, sort_keys=False, **kw) -> None:
     # pylint: disable = too-many-arguments
     """
         Encodes `obj` as a JSON object using `encoded_type` as a type hint, then calls `json.dump`.
@@ -51,7 +52,7 @@ def dump(obj: Any, encoded_type: Any, fp, skipkeys=False, ensure_ascii=True, che
     return json.dump(json_obj, fp, skipkeys=skipkeys, ensure_ascii=ensure_ascii, check_circular=check_circular, allow_nan=allow_nan, cls=cls, indent=indent, separators=separators, default=default, sort_keys=sort_keys, **kw)
 
 
-def dumps(obj: Any, encoded_type: Any, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, default=None, sort_keys=False, **kw):
+def dumps(obj: Any, encoded_type: Type, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, default=None, sort_keys=False, **kw) -> str:
     # pylint: disable = too-many-arguments
     """
         Encodes `obj` as a JSON object using `encoded_type` as a type hint, then calls `json.dumps`.
@@ -64,7 +65,7 @@ def dumps(obj: Any, encoded_type: Any, skipkeys=False, ensure_ascii=True, check_
     return json.dumps(json_obj, skipkeys=skipkeys, ensure_ascii=ensure_ascii, check_circular=check_circular, allow_nan=allow_nan, cls=cls, indent=indent, separators=separators, default=default, sort_keys=sort_keys, **kw)
 
 
-def load(fp, decoded_type: Any, cast_decimal: bool = True, cls=None, parse_float=Decimal, parse_int=None, parse_constant=None, **kw):
+def load(fp, decoded_type: Type, cast_decimal: bool = True, cls=None, parse_float=Decimal, parse_int=None, parse_constant=None, **kw) -> Any:
     # pylint: disable = too-many-arguments
     """
         Calls `json.load`, then decodes `obj` from the resulting JSON object using `decoded_type` as a type hint.
@@ -77,7 +78,7 @@ def load(fp, decoded_type: Any, cast_decimal: bool = True, cls=None, parse_float
     return from_json_obj(obj, decoded_type, cast_decimal=cast_decimal)
 
 
-def loads(s: str, decoded_type: Any, cast_decimal: bool = True, encoding=None, cls=None, parse_float=Decimal, parse_int=None, parse_constant=None, **kw):
+def loads(s: str, decoded_type: Type, cast_decimal: bool = True, encoding=None, cls=None, parse_float=Decimal, parse_int=None, parse_constant=None, **kw) -> Any:
     # pylint: disable = too-many-arguments
     """
         Calls `json.load`, then decodes `obj` from the resulting JSON object using `decoded_type` as a type hint.

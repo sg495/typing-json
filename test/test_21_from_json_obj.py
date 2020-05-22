@@ -66,7 +66,9 @@ def test_from_json_obj_basetypes():
     for val, t, encoding in BASETYPES_ENCODINGS:
         assert from_json_obj(encoding, t) == val
 
-def test_from_json_obj_decimal():
+def test_from_json_obj_numbers():
+    assert from_json_obj(1.5, Decimal) == Decimal(1.5)
+    assert from_json_obj(1, float) == 1.0
     assert from_json_obj(Decimal("1.5"), float) == 1.5
     assert from_json_obj(Decimal("1.0"), float) == 1.0
     try:
@@ -206,7 +208,6 @@ WRONG_TYPE_ENCODINGS = [
     (type(None), 1),
     (None, 1),
     (Decimal, "hi"),
-    (Decimal, 1.5),
     (EnumT, 1.2),
     (EnumT, "Yellow"),
     (List[int], "hello"),

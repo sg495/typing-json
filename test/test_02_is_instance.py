@@ -74,6 +74,7 @@ def test_is_instance_basetypes2():
     }
     for t, obj in values.items():
         assert not is_instance(obj, t, failure_callback=failure_callback)
+    assert is_instance(1, float)
 
 
 def test_is_instance_bool():

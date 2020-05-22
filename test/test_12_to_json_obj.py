@@ -51,14 +51,14 @@ BASETYPES_ENCODINGS = [
     ("hello", str, "hello"),
     (None, type(None), None),
     (None, None, None),
-    (Decimal("1.0"), Decimal, 1),
+    (Decimal("1.0"), Decimal, "1.0"),
     (Decimal("1.5"), Decimal, "1.5"),
     (True, Literal[True, 1.5, None], True),
     (1.5, Literal[True, 1.5, None], 1.5),
     (None, Literal[True, 1.5, None], None),
     (True, Union[bool, float, Decimal], True),
     (1.5, Union[bool, float, Decimal], 1.5),
-    (Decimal("1.0"), Union[bool, str, Decimal], 1),
+    (Decimal("1.0"), Union[bool, str, Decimal], "1.0"),
     (Decimal("1.5"), Union[bool, str, Decimal], "1.5"),
 ]
 
@@ -67,6 +67,7 @@ def test_to_json_obj_basetypes():
     """ Test `to_json_obj` on JSON base types and `decimal.Decimal`. """
     for val, t, encoding in BASETYPES_ENCODINGS:
         assert to_json_obj(val, t) == encoding
+    assert to_json_obj(Decimal("1.5"), Decimal, use_decimal=True) == Decimal("1.5")
 
 
 from enum import Enum
