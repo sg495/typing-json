@@ -608,6 +608,7 @@ Unfortunately, some issues arise with overlapping union types, explained more in
 In short: if two types in a `Union` have overlapping JSON encodings (e.g. `List` and `Set` are both encoded into JSON using lists), they may be deserialised to the incorrect runtime type (though the static `Union` type will still be respected).
 
 ```python
+# Python 3.7.4
 >>> from typing import List, Set, Union
 >>> from typing_json import dumps, loads
 >>> UnionT = Union[List[int], Set[int]]
