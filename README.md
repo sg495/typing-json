@@ -287,7 +287,7 @@ Decimal("1.0")
 # TypeError: Object Decimal('1.0') is not of json basic type t=<class 'int'>.
 ```
 
-To ensure that decimal precision is maintained, instances `Decimal` are always encoded into JSON as strings:
+To ensure that decimal precision is maintained, instances `Decimal` are ordinarily encoded into JSON as strings:
 
 ```python
 # Python 3.7.4
