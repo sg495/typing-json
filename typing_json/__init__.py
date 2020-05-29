@@ -37,7 +37,7 @@ from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_
 
 
 name: str = "typing_json"
-__version__: str = "0.1.1.post1"
+__version__: str = "0.1.1.post2"
 
 def dump(obj: Any, encoded_type: Type, fp, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, default=None, sort_keys=False, **kw) -> None:
     # pylint: disable = too-many-arguments

@@ -116,7 +116,6 @@ def is_json_encodable(t: Type, failure_callback: Optional[Callable[[str], None]]
             return True
     return False
 
-
 def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -> Any:
     """
         Encodes an instance `obj` of typecheckable type `t` into a JSON object.
@@ -182,7 +181,7 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -> Any:
         field_types = getattr(t, "_field_types")
         json_dict = OrderedDict() # type:ignore
         for field in field_types:
-            json_dict[field] = to_json_obj(getattr(obj, field), field_types[field])
+            json_dict[field] = to_json_obj(getattr(obj, field), field_types[field], use_decimal=use_decimal)
         return json_dict
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         # Generics from the `typing` module.
@@ -190,20 +189,20 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -> Any:
             # values in a `typing.Union` are JSON-encoded using the first type in the union that the object is found to be an instance of.
             for s in t.__args__:
                 if is_instance(obj, s):
-                    return to_json_obj(obj, s)
+                    return to_json_obj(obj, s, use_decimal=use_decimal)
             raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover
         if t.__origin__ is Literal:
             # `typing_extensions.Literal` are returned unchanged
             return obj
         if t.__origin__ in (list, set, frozenset, deque):
             # `typing.List`, `typing.Set`, `typing.FrozenSet` and `typing.Deque` are turned into lists, with their elements recursively JSON-encoded
-            return [to_json_obj(x, t.__args__[0]) for x in obj]
+            return [to_json_obj(x, t.__args__[0], use_decimal=use_decimal) for x in obj]
         if t.__origin__ is tuple:
             # `typing.Tuple` are turned into lists, with their elements recursively JSON-encoded
             if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
-                return [to_json_obj(x, t.__args__[0]) for x in obj]
+                return [to_json_obj(x, t.__args__[0], use_decimal=use_decimal) for x in obj]
             else:
-                return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
+                return [to_json_obj(x, t.__args__[i], use_decimal=use_decimal) for i, x in enumerate(obj)]
         if t.__origin__ in (dict, OrderedDict, Mapping):
             # `typing.Dict` and `typing.Mapping` are turned into dictionaries and `typing.OrderedDict` are turned into ordered dictionaries.
             # The values are recursively JSON-encoded. Keys require special handling.
@@ -211,24 +210,24 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -> Any:
             if t.__args__[0] in JSON_BASE_TYPES+(Decimal, None,):
                 # Keys of JSON basic types, `decimal.Decimal` and `None` are recursively JSON-encoded.
                 # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal) for field in fields]
             elif (hasattr(t.__args__[0], "__origin__") and t.__args__[0].__origin__ is Literal):
                 # Keys of `typing_extensions.Literal` types are recursively JSON-encoded.
                 # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal) for field in fields]
             elif isinstance(t.__args__[0], EnumMeta):
                 # Keys of enumeration types are recursively JSON-encoded.
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal) for field in fields]
             else:
                 # Keys of any other type are recursively JSON-encoded and then JSON dumped to strings.
-                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0])) for field in fields]
+                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0], use_decimal=use_decimal)) for field in fields]
             if t.__origin__ in (dict, Mapping):
                 # A `dict`is used for `typing.Dict` and `typing.Mapping`.
-                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1]) for i, field in enumerate(fields)}
+                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1], use_decimal=use_decimal) for i, field in enumerate(fields)}
             if t.__origin__ is OrderedDict:
                 # A `collections.OrderedDict` is used for `typing.OrderedDict`.
                 new_ordered_dict = OrderedDict() # type:ignore
                 for i, field in enumerate(fields):
-                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1])
+                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1], use_decimal=use_decimal)
                 return new_ordered_dict
     raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover
