@@ -7,7 +7,7 @@
     Types supported include JSON basic types, typed collections from the `typing` module, literal types, union types,
     optional types and (certain) typed namedtuples.
 
-    (Version: 0.1.0)
+    (Version: 0.1.1)
 """
 
 # standard imports

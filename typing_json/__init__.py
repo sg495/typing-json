@@ -21,7 +21,7 @@
     which are not deemed of type `int`, and on integral instances of `decimal.Decimal`, which are deemed of type `int` if the optional parameter
     `cast_decimal` is set to `True` (its default value).
 
-    (Version: 0.1.0)
+    (Version: 0.1.1)
 """
 
 # standard imports

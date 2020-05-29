@@ -6,7 +6,7 @@
     the builtin `isinstance` to deal with certain typed collections created using the `typing` module,
     as well as literal types, optional types, unions and (certain) typed namedtuples.
 
-    (Version: 0.1.0)
+    (Version: 0.1.1)
 """
 
 # standard imports
