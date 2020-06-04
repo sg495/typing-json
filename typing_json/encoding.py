@@ -7,7 +7,7 @@
     and (certain) typed namedtuples.
     The JSON-encoding preserves all information necessary to reconstruct the at decoding time (cf. `typing_json.decoding.from_json_obj`).
 
-    (Version: 0.1.1)
+    (Version: 0.1.2)
 """
 
 # standard imports
