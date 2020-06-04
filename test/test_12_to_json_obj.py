@@ -109,13 +109,8 @@ SETS_ENCODINGS = [
 
 def test_to_json_obj_sets():
     """ Checks that sets are encoded into lists with the correct elements. """
-    def _assert_eq_sets(l1, l2):
-        assert isinstance(l1, list)
-        assert isinstance(l2, list)
-        assert len(l1) == len(l2)
-        assert set(l1) == set(l2)
     for val, t, encoding in SETS_ENCODINGS:
-        _assert_eq_sets(to_json_obj(val, t), encoding)
+        to_json_obj(val, t) == encoding
 
 
 DICT_ENCODINGS = [
@@ -132,14 +127,8 @@ DICT_ENCODINGS = [
 
 def test_to_json_obj_dicts():
     """ Checks that dicts/mappings are encoded into dicts with the correct key/value pairs. """
-    def _assert_eq_dicts(d1, d2):
-        assert isinstance(d1, dict)
-        assert isinstance(d2, dict)
-        assert len(d1) == len(d2)
-        assert set(d1.keys()) == set(d2.keys())
-        assert all(d1[key] == d2[key] for key in d1)
     for val, t, encoding in DICT_ENCODINGS:
-        _assert_eq_dicts(to_json_obj(val, t), encoding)
+        to_json_obj(val, t) == encoding
 
 
 ORDERED_DICT_ENCODINGS = [
@@ -152,29 +141,67 @@ ORDERED_DICT_ENCODINGS = [
 
 def test_to_json_obj_ordereddicts():
     """ Checks that dicts/mappings are encoded into dicts with the correct key/value pairs. """
-    def _assert_eq_ordered_dicts(d1, d2):
-        assert isinstance(d1, OrderedDict)
-        assert isinstance(d2, OrderedDict)
-        assert len(d1) == len(d2)
-        assert tuple(d1.keys()) == tuple(d2.keys())
-        assert all(d1[key] == d2[key] for key in d1)
     for val, t, encoding in ORDERED_DICT_ENCODINGS:
-        _assert_eq_ordered_dicts(to_json_obj(val, t), encoding)
+        assert to_json_obj(val, t) == encoding
 
 
 def test_is_json_encodable_namedtuple():
     """
         Tests the encoding of namedtuples.
     """
-    def _assert_eq_ordered_dicts(d1, d2):
-        assert isinstance(d1, OrderedDict)
-        assert isinstance(d2, OrderedDict)
-        assert len(d1) == len(d2)
-        assert tuple(d1.keys()) == tuple(d2.keys())
-        assert all(d1[key] == d2[key] for key in d1)
     class NamedTupleExampleT(NamedTuple):
         name: str
         value: Union[int, float]
     t = NamedTupleExampleT("t", 1)
     t_encoding = OrderedDict([("name", "t"), ("value", 1)])
-    _assert_eq_ordered_dicts(to_json_obj(t, NamedTupleExampleT), t_encoding)
+    assert to_json_obj(t, NamedTupleExampleT) == t_encoding
+
+def test_to_json_obj_large_collections_int():
+    large_list: List[int] = []
+    for i in range(1000):
+        large_list.append(i)
+    assert to_json_obj(large_list, List[int]) == large_list
+
+
+def test_to_json_obj_large_collections_decimal():
+    large_list: List[Decimal] = []
+    for i in range(1000):
+        large_list.append(Decimal(i))
+    assert to_json_obj(large_list, List[Decimal], use_decimal=True) == large_list
+    assert to_json_obj(large_list, List[Decimal], use_decimal=False) == [str(el) for el in large_list]
+
+def test_to_json_obj_large_collections_none():
+    large_list: List[None] = []
+    for i in range(1000):
+        large_list.append(None)
+    assert to_json_obj(large_list, List[None]) == large_list
+    assert to_json_obj(large_list, List[type(None)]) == large_list
+
+def test_to_json_obj_large_collections_enum():
+    large_list: List[EnumT] = []
+    for i in range(1000):
+        large_list.append(EnumT.Red)
+    assert to_json_obj(large_list, List[EnumT]) == ["Red" for _ in large_list]
+
+
+def test_to_json_obj_large_collections_other():
+    large_list: List[Tuple[int, int]] = []
+    for i in range(1000):
+        large_list.append((i, i+1))
+    assert to_json_obj(large_list, List[Tuple[int, int]]) == [list(el) for el in large_list]
+
+
+def test_to_json_obj_large_collections_namedtuple():
+    class Pair(NamedTuple):
+        left: int
+        right: int
+    large_list: List[Pair] = []
+    large_list_encoding_lists: List[list] = []
+    large_list_encoding_dicts: List[dict] = []
+    for i in range(1000):
+        large_list.append(Pair(i, i+1))
+        large_list_encoding_lists.append([i, i+1])
+        large_list_encoding_dicts.append({"left": i, "right": i+1})
+    assert to_json_obj(large_list, List[Pair], namedtuples_as_lists=True) == large_list_encoding_lists
+    assert to_json_obj(large_list, List[Pair], namedtuples_as_lists=False) == large_list_encoding_dicts
+

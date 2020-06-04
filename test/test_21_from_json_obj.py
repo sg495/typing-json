@@ -254,3 +254,14 @@ def test_from_json_obj_wrong_type():
             assert False, "Should not be decoding %s as %s."%(str(encoding), str(t))
         except TypeError:
             assert True
+
+def test_from_json_obj_large_collections_namedtuple():
+    class Pair(NamedTuple):
+        left: int
+        right: int
+    large_list: List[Pair] = []
+    for i in range(1000):
+        large_list.append(Pair(i, i+1))
+    assert from_json_obj(to_json_obj(large_list, List[Pair], namedtuples_as_lists=False), List[Pair]) == large_list
+    assert from_json_obj(to_json_obj(large_list, List[Pair], namedtuples_as_lists=True), List[Pair]) == large_list
+

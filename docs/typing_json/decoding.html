@@ -26,7 +26,7 @@
 turn JSON objects obtained from <a title="typing_json.encoding.to_json_obj" href="encoding.html#typing_json.encoding.to_json_obj"><code>to_json_obj()</code></a> back into instances of the original types.
 Types supported include JSON basic types, typed collections from the <code>typing</code> module, literal types, union types,
 optional types and (certain) typed namedtuples.</p>
-<p>(Version: 0.1.0)</p>
+<p>(Version: 0.1.1)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -40,7 +40,7 @@ optional types and (certain) typed namedtuples.</p>
     Types supported include JSON basic types, typed collections from the `typing` module, literal types, union types,
     optional types and (certain) typed namedtuples.
 
-    (Version: 0.1.0)
+    (Version: 0.1.1)
 &#34;&#34;&#34;
 
 # standard imports
@@ -60,6 +60,48 @@ from typing_json.encoding import is_json_encodable
 
 
 _UNREACHABLE_ERROR_MSG = &#34;Should never reach this point, please open an issue on GitHub.&#34;
+
+
+def _from_json_obj_namedtuple(obj, t, fields, field_types, field_defaults, cast_decimal=True):
+    # pylint: disable = too-many-arguments
+    if isinstance(obj, list):
+        # there is a special provision for decoding namedtuples from lists (the standard encoding done by the builtin json library)
+        if len(fields) &lt; len(obj):
+            raise TypeError(&#34;Object %s provides too many values for namedtuple type t=%s.&#34;%(short_str(obj), str(t)))
+        return_val = t(*tuple(from_json_obj(obj[i] if i &lt; len(obj) else field_defaults[field], field_types[field], cast_decimal=cast_decimal) for i, field in enumerate(fields)))
+        # assert is_instance(return_val, t, cast_decimal=cast_decimal)
+        return return_val
+    if not isinstance(obj, (dict, OrderedDict)):
+        # Namedtuples are ordinarily decoded from dictionaries, not necessarily ordered (though they are encoded as ordered dictionaries).
+        raise TypeError(&#34;Object %s is not (ordered) dictionary (t=%s).&#34;%(short_str(obj), str(t))) # pylint:disable=line-too-long
+    converted_dict: OrderedDict() = {} # type:ignore
+    if set(obj.keys()).union(set(field_defaults.keys())) != set(field_types.keys()):
+        # raise an error if the keys provided by the object together with the names of fields with default values don&#39;t yield exactly the names of all fields for the namedtuple
+        key_diff = set(obj.keys()).union(set(field_defaults.keys())) - set(field_types.keys())
+        if key_diff:
+            raise TypeError(&#34;Object %s does not have the required keys: t=%s, extra keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+        key_diff = set(field_types.keys()) - set(obj.keys()).union(set(field_defaults.keys()))
+        raise TypeError(&#34;Object %s does not have the required keys: t=%s, missing keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
+    for field in fields:
+        field_type = field_types[field]
+        if not field in obj:
+            # for each field not appearing in the JSON object, use the field default value
+            converted_dict[field] = field_defaults[field]
+        else:
+            # for each field appearing in the JSON object, decoding the corresponding value
+            converted_dict[field] = from_json_obj(obj[field], field_type)
+    return_val = t(**converted_dict)
+    # assert is_instance(return_val, t, cast_decimal=cast_decimal)
+    return return_val
+
+
+def _from_json_obj_iterator(obj, element_t, cast_decimal=True):
+    if is_namedtuple(element_t):
+        fields = getattr(element_t, &#34;_fields&#34;)
+        field_types = getattr(element_t, &#34;_field_types&#34;)
+        field_defaults = getattr(element_t, &#34;_field_defaults&#34;)
+        return (_from_json_obj_namedtuple(el, element_t, fields, field_types, field_defaults, cast_decimal=cast_decimal) for el in obj)
+    return (from_json_obj(el, element_t, cast_decimal=cast_decimal) for el in obj)
 
 
 def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -&gt; Any:
@@ -93,6 +135,13 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -&gt; Any:
         If `t` is a namedtuple (according to `typing_json.typechecking.is_namedtuple`), `obj` must be a dictionary (not necessarily ordered, although namedtuple are JSON-encoded as such).
         The keys for the dictionary must form a subset of all field names for the namedtuple `t`, including at least all names of fields without default value.
         An instance of `t` is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by `t`.
+
+        As an exception to the above rule, decoding of namedtuples is allowed from lists of values, in the same order as the namedtuple fields they are to be assigned to.
+        Missing values are allowed at the end and are filled with default field values.
+        No excess values are allowed.
+        This is to support the default `json` library behaviour on namedtuples, encoded as lists of field values.
+
+        (Version 0.1.1.post1)
     &#34;&#34;&#34;
     # pylint: disable = too-many-branches, too-many-statements, too-many-return-statements
     trace: List[str] = []
@@ -135,31 +184,10 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -&gt; Any:
             raise TypeError(&#34;Object %s is not the string of a value of the enum (t=%s).&#34;%(short_str(obj), str(t)))
         return t.__members__[obj] # type: ignore # pylint:disable=protected-access
     if is_namedtuple(t):
-        # Namedtuples are decoded from dictionaries, not necessarily ordered (though they are encoded as ordered dictionaries).
-        if not isinstance(obj, (dict, OrderedDict)):
-            raise TypeError(&#34;Object %s is not (ordered) dictionary (t=%s).&#34;%(short_str(obj), str(t))) # pylint:disable=line-too-long
         fields = getattr(t, &#34;_fields&#34;)
         field_types = getattr(t, &#34;_field_types&#34;)
         field_defaults = getattr(t, &#34;_field_defaults&#34;)
-        converted_dict: OrderedDict() = {} # type:ignore
-        if set(obj.keys()).union(set(field_defaults.keys())) != set(field_types.keys()):
-            # raise an error if the keys provided by the object together with the names of fields with default values don&#39;t yield exactly the names of all fields for the namedtuple
-            key_diff = set(obj.keys()).union(set(field_defaults.keys())) - set(field_types.keys())
-            if key_diff:
-                raise TypeError(&#34;Object %s does not have the required keys: t=%s, extra keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
-            key_diff = set(field_types.keys()) - set(obj.keys()).union(set(field_defaults.keys()))
-            raise TypeError(&#34;Object %s does not have the required keys: t=%s, missing keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
-        for field in fields:
-            field_type = field_types[field]
-            if not field in obj:
-                # for each field not appearing in the JSON object, use the field default value
-                converted_dict[field] = field_defaults[field]
-            else:
-                # for each field appearing in the JSON object, decoding the corresponding value
-                converted_dict[field] = from_json_obj(obj[field], field_type)
-        return_val = t(**converted_dict)
-        assert is_instance(return_val, t, cast_decimal=cast_decimal)
-        return return_val
+        return _from_json_obj_namedtuple(obj, t, fields, field_types, field_defaults, cast_decimal=cast_decimal)
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # `typing` generics
         if t.__origin__ is Union:
@@ -167,7 +195,7 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -&gt; Any:
             for s in t.__args__:
                 try:
                     return_val = from_json_obj(obj, s)
-                    assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                    # assert is_instance(return_val, t, cast_decimal=cast_decimal)
                     return return_val
                 except TypeError:
                     continue
@@ -182,43 +210,43 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -&gt; Any:
             # for `typing.List`, expect a list and return a list with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = list(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = list(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is deque:
             # for `typing.Deque`, expect a list and return a deque with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = deque(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = deque(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is set:
             # for `typing.Set`, expect a list and return a set with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = set(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = set(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is frozenset:
             # for `typing.FrozenSet`, expect a list and return a frozenset with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = frozenset(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = frozenset(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is tuple:
             # for `typing.Tuple`, expect a list and return a tuple with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
             if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
-                return_val = tuple(from_json_obj(x, t.__args__[0]) for x in obj)
-                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                return_val = tuple(_from_json_obj_iterator(obj, t.__args__[0]))
+                # assert is_instance(return_val, t, cast_decimal=cast_decimal)
                 return return_val
             else:
                 if len(obj) != len(t.__args__):
                     raise TypeError(&#34;List %s is of incorrect length (t=%s).&#34;%(short_str(obj), str(t)))
                 return_val = tuple(from_json_obj(x, t.__args__[i]) for i, x in enumerate(obj))
-                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                # assert is_instance(return_val, t, cast_decimal=cast_decimal)
                 return return_val
         if t.__origin__ in (dict, Mapping):
             # for `typing.Dict` and `typing.Mapping`, expect a dict and return a dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
@@ -235,7 +263,7 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -&gt; Any:
                 else:
                     converted_field = from_json_obj(json.loads(field), t.__args__[0])
                 converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
-            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            # assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
             return converted_dict
         if t.__origin__ is OrderedDict:
             # for `typing.OrderedDict`, expect a `collections.OrderedDict` and return an ordered dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
@@ -252,7 +280,7 @@ def from_json_obj(obj: Any, t: Type, cast_decimal: bool = True) -&gt; Any:
                 else:
                     converted_field = from_json_obj(json.loads(field), t.__args__[0])
                 converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
-            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            # assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
             return converted_dict
     raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
 </details>
@@ -295,7 +323,12 @@ v- if <code>t</code> is <code>decimal.Decimal</code> and the <code>cast_decimal<
 </ul>
 <p>If <code>t</code> is a namedtuple (according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a>), <code>obj</code> must be a dictionary (not necessarily ordered, although namedtuple are JSON-encoded as such).
 The keys for the dictionary must form a subset of all field names for the namedtuple <code>t</code>, including at least all names of fields without default value.
-An instance of <code>t</code> is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by <code>t</code>.</p></section>
+An instance of <code>t</code> is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by <code>t</code>.</p>
+<p>As an exception to the above rule, decoding of namedtuples is allowed from lists of values, in the same order as the namedtuple fields they are to be assigned to.
+Missing values are allowed at the end and are filled with default field values.
+No excess values are allowed.
+This is to support the default <code>json</code> library behaviour on namedtuples, encoded as lists of field values.</p>
+<p>(Version 0.1.1.post1)</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -331,6 +364,13 @@ An instance of <code>t</code> is then constructed (and returned) by assigning to
         If `t` is a namedtuple (according to `typing_json.typechecking.is_namedtuple`), `obj` must be a dictionary (not necessarily ordered, although namedtuple are JSON-encoded as such).
         The keys for the dictionary must form a subset of all field names for the namedtuple `t`, including at least all names of fields without default value.
         An instance of `t` is then constructed (and returned) by assigning to fields having names in the dictionary the JSON decoding of the corresponding values in the dictionary, and to all other fields the default values specified by `t`.
+
+        As an exception to the above rule, decoding of namedtuples is allowed from lists of values, in the same order as the namedtuple fields they are to be assigned to.
+        Missing values are allowed at the end and are filled with default field values.
+        No excess values are allowed.
+        This is to support the default `json` library behaviour on namedtuples, encoded as lists of field values.
+
+        (Version 0.1.1.post1)
     &#34;&#34;&#34;
     # pylint: disable = too-many-branches, too-many-statements, too-many-return-statements
     trace: List[str] = []
@@ -373,31 +413,10 @@ An instance of <code>t</code> is then constructed (and returned) by assigning to
             raise TypeError(&#34;Object %s is not the string of a value of the enum (t=%s).&#34;%(short_str(obj), str(t)))
         return t.__members__[obj] # type: ignore # pylint:disable=protected-access
     if is_namedtuple(t):
-        # Namedtuples are decoded from dictionaries, not necessarily ordered (though they are encoded as ordered dictionaries).
-        if not isinstance(obj, (dict, OrderedDict)):
-            raise TypeError(&#34;Object %s is not (ordered) dictionary (t=%s).&#34;%(short_str(obj), str(t))) # pylint:disable=line-too-long
         fields = getattr(t, &#34;_fields&#34;)
         field_types = getattr(t, &#34;_field_types&#34;)
         field_defaults = getattr(t, &#34;_field_defaults&#34;)
-        converted_dict: OrderedDict() = {} # type:ignore
-        if set(obj.keys()).union(set(field_defaults.keys())) != set(field_types.keys()):
-            # raise an error if the keys provided by the object together with the names of fields with default values don&#39;t yield exactly the names of all fields for the namedtuple
-            key_diff = set(obj.keys()).union(set(field_defaults.keys())) - set(field_types.keys())
-            if key_diff:
-                raise TypeError(&#34;Object %s does not have the required keys: t=%s, extra keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
-            key_diff = set(field_types.keys()) - set(obj.keys()).union(set(field_defaults.keys()))
-            raise TypeError(&#34;Object %s does not have the required keys: t=%s, missing keys %s.&#34;%(short_str(obj), str(t), str(key_diff))) # pylint:disable=line-too-long
-        for field in fields:
-            field_type = field_types[field]
-            if not field in obj:
-                # for each field not appearing in the JSON object, use the field default value
-                converted_dict[field] = field_defaults[field]
-            else:
-                # for each field appearing in the JSON object, decoding the corresponding value
-                converted_dict[field] = from_json_obj(obj[field], field_type)
-        return_val = t(**converted_dict)
-        assert is_instance(return_val, t, cast_decimal=cast_decimal)
-        return return_val
+        return _from_json_obj_namedtuple(obj, t, fields, field_types, field_defaults, cast_decimal=cast_decimal)
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # `typing` generics
         if t.__origin__ is Union:
@@ -405,7 +424,7 @@ An instance of <code>t</code> is then constructed (and returned) by assigning to
             for s in t.__args__:
                 try:
                     return_val = from_json_obj(obj, s)
-                    assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                    # assert is_instance(return_val, t, cast_decimal=cast_decimal)
                     return return_val
                 except TypeError:
                     continue
@@ -420,43 +439,43 @@ An instance of <code>t</code> is then constructed (and returned) by assigning to
             # for `typing.List`, expect a list and return a list with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = list(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = list(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is deque:
             # for `typing.Deque`, expect a list and return a deque with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = deque(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = deque(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is set:
             # for `typing.Set`, expect a list and return a set with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = set(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = set(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is frozenset:
             # for `typing.FrozenSet`, expect a list and return a frozenset with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
-            return_val = frozenset(from_json_obj(x, t.__args__[0]) for x in obj)
-            assert is_instance(return_val, t, cast_decimal=cast_decimal)
+            return_val = frozenset(_from_json_obj_iterator(obj, t.__args__[0]))
+            # assert is_instance(return_val, t, cast_decimal=cast_decimal)
             return return_val
         if t.__origin__ is tuple:
             # for `typing.Tuple`, expect a list and return a tuple with recursively JSON-decoded elements
             if not isinstance(obj, list):
                 raise TypeError(&#34;Object %s is not list (t=%s).&#34;%(short_str(obj), str(t)))
             if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
-                return_val = tuple(from_json_obj(x, t.__args__[0]) for x in obj)
-                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                return_val = tuple(_from_json_obj_iterator(obj, t.__args__[0]))
+                # assert is_instance(return_val, t, cast_decimal=cast_decimal)
                 return return_val
             else:
                 if len(obj) != len(t.__args__):
                     raise TypeError(&#34;List %s is of incorrect length (t=%s).&#34;%(short_str(obj), str(t)))
                 return_val = tuple(from_json_obj(x, t.__args__[i]) for i, x in enumerate(obj))
-                assert is_instance(return_val, t, cast_decimal=cast_decimal)
+                # assert is_instance(return_val, t, cast_decimal=cast_decimal)
                 return return_val
         if t.__origin__ in (dict, Mapping):
             # for `typing.Dict` and `typing.Mapping`, expect a dict and return a dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
@@ -473,7 +492,7 @@ An instance of <code>t</code> is then constructed (and returned) by assigning to
                 else:
                     converted_field = from_json_obj(json.loads(field), t.__args__[0])
                 converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
-            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            # assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
             return converted_dict
         if t.__origin__ is OrderedDict:
             # for `typing.OrderedDict`, expect a `collections.OrderedDict` and return an ordered dict with recursively JSON-decoded values and keys (parsing keys from strings in all those cases where they would have been stringified)
@@ -490,7 +509,7 @@ An instance of <code>t</code> is then constructed (and returned) by assigning to
                 else:
                     converted_field = from_json_obj(json.loads(field), t.__args__[0])
                 converted_dict[converted_field] = from_json_obj(obj[field], t.__args__[1])
-            assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
+            # assert is_instance(converted_dict, t, cast_decimal=cast_decimal)
             return converted_dict
     raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
 </details>

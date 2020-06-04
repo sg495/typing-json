@@ -26,7 +26,7 @@
 of basic JSON types, typed collections from the <code>typing</code> module, literal types, union types, optional types
 and (certain) typed namedtuples.
 The JSON-encoding preserves all information necessary to reconstruct the at decoding time (cf. <a title="typing_json.decoding.from_json_obj" href="decoding.html#typing_json.decoding.from_json_obj"><code>from_json_obj()</code></a>).</p>
-<p>(Version: 0.1.0)</p>
+<p>(Version: 0.1.1)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -40,7 +40,7 @@ The JSON-encoding preserves all information necessary to reconstruct the at deco
     and (certain) typed namedtuples.
     The JSON-encoding preserves all information necessary to reconstruct the at decoding time (cf. `typing_json.decoding.from_json_obj`).
 
-    (Version: 0.1.0)
+    (Version: 0.1.1)
 &#34;&#34;&#34;
 
 # standard imports
@@ -150,16 +150,39 @@ def is_json_encodable(t: Type, failure_callback: Optional[Callable[[str], None]]
     return False
 
 
-def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -&gt; Any:
+def _to_json_obj_namedtuple(obj, field_types, use_decimal=True, namedtuples_as_lists=False):
+    # pylint:disable=invalid-name
+    if namedtuples_as_lists:
+        return [to_json_obj(getattr(obj, field), field_type, use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for field, field_type in field_types.items()]
+    json_dict = OrderedDict() # type:ignore
+    for field, field_type in field_types.items():
+        json_dict[field] = to_json_obj(getattr(obj, field), field_type, use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists)
+    return json_dict
+
+
+def _to_json_obj_homogeneous_collection(obj, element_t, use_decimal=True, namedtuples_as_lists=False):
+    # pylint:disable=invalid-name,too-many-return-statements
+    if element_t in JSON_BASE_TYPES or element_t in (None, type(None)):
+        return list(obj)
+    if element_t is Decimal:
+        if use_decimal:
+            return list(obj)
+        return [str(el) for el in obj]
+    if isinstance(element_t, EnumMeta):
+        return [el._name_ for el in obj] # pylint:disable=protected-access
+    if is_namedtuple(element_t):
+        field_types = getattr(element_t, &#34;_field_types&#34;)
+        return [_to_json_obj_namedtuple(el, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists) for el in obj]
+    return [to_json_obj(x, element_t, use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for x in obj]
+
+
+def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = True, namedtuples_as_lists=False) -&gt; Any:
     &#34;&#34;&#34;
         Encodes an instance `obj` of typecheckable type `t` into a JSON object.
         The optional `use_decimal` parameter can be used to specify that instances of
         `decimal.Decimal` can be used in the output: if `False`, they are converted to strings.
         This method raises `TypeError` if type `t` is not typecheckable according to `typing_json.typechecking.is_typecheckable`.
         This method raises `TypeError` if `obj` is not of type `t` according to `typing_json.typechecking.is_instance`.
-
-        The optional parameter `failure_callback` can be used to collect a detailed trace of
-        the reasons behind this method returning `False` on a given type `t`.
 
         Currently, this method acts as follows on an instance `obj` of type `t`:
 
@@ -168,7 +191,8 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -&gt; Any:
         - if `t` is `decimal.Decimal` and `use_decimal` is `True`, `obj` is returned unchanged;
         - if `t` is `None` (used as an alias for `NoneType`), `None` is returned;
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`), the enum value name `obj._name_` is returned;
-        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `False`, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `True`, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);
         - if `t` is `typing.Union`, the generic type arguments in the union are tried one after the other until a `u` is found such that `is_instance(obj, u)`, then `obj` is JSON-encoded using `u` as its type.
         - if `t` is a `typing_extensions.Literal`, `obj` is returned unchanged;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` or `typing.Tuple`, a list is returned containing the elements of the original collection, recursively JSON-encoded;
@@ -183,18 +207,22 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -&gt; Any:
 
         Literals can only be of JSON basic type.
 
+        An optional parameter `typecheck` (default: `True`) can be used to skip the check that `t` be JSON encodable and that `obj` be an instance of `t`.
+        The parameter `typecheck` is set to `False` in all recursive calls (i.e. typechecking is only done once).
+
     &#34;&#34;&#34;
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
-    trace: List[str] = []
-    def failure_callback(message: str) -&gt; None:
-        trace.append(message)
-    if not is_json_encodable(t, failure_callback=failure_callback):
-        # Argument `t` must be JSON encodable.
-        raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
-    trace = []
-    if not is_instance(obj, t, failure_callback=failure_callback):
-        # Argument `obj` must be an instance of argument `t`.
-        raise TypeError(&#34;Object %s is not of type %s. Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
+    if typecheck:
+        trace: List[str] = []
+        def failure_callback(message: str) -&gt; None:
+            trace.append(message)
+        if not is_json_encodable(t, failure_callback=failure_callback):
+            # Argument `t` must be JSON encodable.
+            raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
+        trace = []
+        if not is_instance(obj, t, failure_callback=failure_callback):
+            # Argument `obj` must be an instance of argument `t`.
+            raise TypeError(&#34;Object %s is not of type %s. Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
     if t in JSON_BASE_TYPES:
         # JSON basic types are returned unchanged.
         return obj
@@ -213,30 +241,27 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -&gt; Any:
     if is_namedtuple(t):
         # Namedtuples are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
         field_types = getattr(t, &#34;_field_types&#34;)
-        json_dict = OrderedDict() # type:ignore
-        for field in field_types:
-            json_dict[field] = to_json_obj(getattr(obj, field), field_types[field])
-        return json_dict
+        return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # Generics from the `typing` module.
         if t.__origin__ is Union:
             # values in a `typing.Union` are JSON-encoded using the first type in the union that the object is found to be an instance of.
             for s in t.__args__:
                 if is_instance(obj, s):
-                    return to_json_obj(obj, s)
+                    return to_json_obj(obj, s, use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists)
             raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover
         if t.__origin__ is Literal:
             # `typing_extensions.Literal` are returned unchanged
             return obj
         if t.__origin__ in (list, set, frozenset, deque):
             # `typing.List`, `typing.Set`, `typing.FrozenSet` and `typing.Deque` are turned into lists, with their elements recursively JSON-encoded
-            return [to_json_obj(x, t.__args__[0]) for x in obj]
+            return _to_json_obj_homogeneous_collection(obj, t.__args__[0], use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
         if t.__origin__ is tuple:
             # `typing.Tuple` are turned into lists, with their elements recursively JSON-encoded
             if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
-                return [to_json_obj(x, t.__args__[0]) for x in obj]
+                return _to_json_obj_homogeneous_collection(obj, t.__args__[0], use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
             else:
-                return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
+                return [to_json_obj(x, t.__args__[i], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for i, x in enumerate(obj)]
         if t.__origin__ in (dict, OrderedDict, Mapping):
             # `typing.Dict` and `typing.Mapping` are turned into dictionaries and `typing.OrderedDict` are turned into ordered dictionaries.
             # The values are recursively JSON-encoded. Keys require special handling.
@@ -244,25 +269,25 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -&gt; Any:
             if t.__args__[0] in JSON_BASE_TYPES+(Decimal, None,):
                 # Keys of JSON basic types, `decimal.Decimal` and `None` are recursively JSON-encoded.
                 # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for field in fields]
             elif (hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal):
                 # Keys of `typing_extensions.Literal` types are recursively JSON-encoded.
                 # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for field in fields]
             elif isinstance(t.__args__[0], EnumMeta):
                 # Keys of enumeration types are recursively JSON-encoded.
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for field in fields]
             else:
                 # Keys of any other type are recursively JSON-encoded and then JSON dumped to strings.
-                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0])) for field in fields]
+                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists)) for field in fields]
             if t.__origin__ in (dict, Mapping):
                 # A `dict`is used for `typing.Dict` and `typing.Mapping`.
-                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1]) for i, field in enumerate(fields)}
+                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for i, field in enumerate(fields)}
             if t.__origin__ is OrderedDict:
                 # A `collections.OrderedDict` is used for `typing.OrderedDict`.
                 new_ordered_dict = OrderedDict() # type:ignore
                 for i, field in enumerate(fields):
-                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1])
+                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists)
                 return new_ordered_dict
     raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
 </details>
@@ -381,7 +406,7 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 </details>
 </dd>
 <dt id="typing_json.encoding.to_json_obj"><code class="name flex">
-<span>def <span class="ident">to_json_obj</span></span>(<span>obj: Any, t: Type, use_decimal: bool = False) -> Any</span>
+<span>def <span class="ident">to_json_obj</span></span>(<span>obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = True, namedtuples_as_lists=False) -> Any</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Encodes an instance <code>obj</code> of typecheckable type <code>t</code> into a JSON object.
@@ -389,8 +414,6 @@ The optional <code>use_decimal</code> parameter can be used to specify that inst
 <code>decimal.Decimal</code> can be used in the output: if <code>False</code>, they are converted to strings.
 This method raises <code>TypeError</code> if type <code>t</code> is not typecheckable according to <a title="typing_json.typechecking.is_typecheckable" href="typechecking.html#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a>.
 This method raises <code>TypeError</code> if <code>obj</code> is not of type <code>t</code> according to <a title="typing_json.typechecking.is_instance" href="typechecking.html#typing_json.typechecking.is_instance"><code>is_instance()</code></a>.</p>
-<p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of
-the reasons behind this method returning <code>False</code> on a given type <code>t</code>.</p>
 <p>Currently, this method acts as follows on an instance <code>obj</code> of type <code>t</code>:</p>
 <ul>
 <li>if <code>t</code> is one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>, the instance <code>obj</code> is returned unchanged;</li>
@@ -398,7 +421,8 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 <li>if <code>t</code> is <code>decimal.Decimal</code> and <code>use_decimal</code> is <code>True</code>, <code>obj</code> is returned unchanged;</li>
 <li>if <code>t</code> is <code>None</code> (used as an alias for <code>NoneType</code>), <code>None</code> is returned;</li>
 <li>if <code>t</code> is an enum (i.e. <code>isinstance(t, EnumMeta)</code>), the enum value name <code>obj._name_</code> is returned;</li>
-<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;</li>
+<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable and <code>namedtuples_as_lists</code> is <code>False</code>, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;</li>
+<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable and <code>namedtuples_as_lists</code> is <code>True</code>, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);</li>
 <li>if <code>t</code> is <code>typing.Union</code>, the generic type arguments in the union are tried one after the other until a <code>u</code> is found such that <code>is_instance(obj, u)</code>, then <code>obj</code> is JSON-encoded using <code>u</code> as its type.</li>
 <li>if <code>t</code> is a <code>typing_extensions.Literal</code>, <code>obj</code> is returned unchanged;</li>
 <li>if <code>t</code> is one of <code>typing.List</code>, <code>typing.Set</code>, <code>typing.FrozenSet</code>, <code>typing.Deque</code> or <code>typing.Tuple</code>, a list is returned containing the elements of the original collection, recursively JSON-encoded;</li>
@@ -411,21 +435,20 @@ When encoding dictionaries, the keys used in the encoding follow the following c
 <li>if the key type is a JOSN basic type, <code>decimal.Decimal</code> or an enumeration type, the JSON encoding of the keys is used;</li>
 <li>otherwise, the stringified version of the JSON encoding (using <code>json.dumps</code>) is used;</li>
 </ul>
-<p>Literals can only be of JSON basic type.</p></section>
+<p>Literals can only be of JSON basic type.</p>
+<p>An optional parameter <code>typecheck</code> (default: <code>True</code>) can be used to skip the check that <code>t</code> be JSON encodable and that <code>obj</code> be an instance of <code>t</code>.
+The parameter <code>typecheck</code> is set to <code>False</code> in all recursive calls (i.e. typechecking is only done once).</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_json_obj(obj: Any, t: Type, use_decimal: bool = False) -&gt; Any:
+<pre><code class="python">def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = True, namedtuples_as_lists=False) -&gt; Any:
     &#34;&#34;&#34;
         Encodes an instance `obj` of typecheckable type `t` into a JSON object.
         The optional `use_decimal` parameter can be used to specify that instances of
         `decimal.Decimal` can be used in the output: if `False`, they are converted to strings.
         This method raises `TypeError` if type `t` is not typecheckable according to `typing_json.typechecking.is_typecheckable`.
         This method raises `TypeError` if `obj` is not of type `t` according to `typing_json.typechecking.is_instance`.
-
-        The optional parameter `failure_callback` can be used to collect a detailed trace of
-        the reasons behind this method returning `False` on a given type `t`.
 
         Currently, this method acts as follows on an instance `obj` of type `t`:
 
@@ -434,7 +457,8 @@ When encoding dictionaries, the keys used in the encoding follow the following c
         - if `t` is `decimal.Decimal` and `use_decimal` is `True`, `obj` is returned unchanged;
         - if `t` is `None` (used as an alias for `NoneType`), `None` is returned;
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`), the enum value name `obj._name_` is returned;
-        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `False`, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
+        - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `True`, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);
         - if `t` is `typing.Union`, the generic type arguments in the union are tried one after the other until a `u` is found such that `is_instance(obj, u)`, then `obj` is JSON-encoded using `u` as its type.
         - if `t` is a `typing_extensions.Literal`, `obj` is returned unchanged;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` or `typing.Tuple`, a list is returned containing the elements of the original collection, recursively JSON-encoded;
@@ -449,18 +473,22 @@ When encoding dictionaries, the keys used in the encoding follow the following c
 
         Literals can only be of JSON basic type.
 
+        An optional parameter `typecheck` (default: `True`) can be used to skip the check that `t` be JSON encodable and that `obj` be an instance of `t`.
+        The parameter `typecheck` is set to `False` in all recursive calls (i.e. typechecking is only done once).
+
     &#34;&#34;&#34;
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
-    trace: List[str] = []
-    def failure_callback(message: str) -&gt; None:
-        trace.append(message)
-    if not is_json_encodable(t, failure_callback=failure_callback):
-        # Argument `t` must be JSON encodable.
-        raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
-    trace = []
-    if not is_instance(obj, t, failure_callback=failure_callback):
-        # Argument `obj` must be an instance of argument `t`.
-        raise TypeError(&#34;Object %s is not of type %s. Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
+    if typecheck:
+        trace: List[str] = []
+        def failure_callback(message: str) -&gt; None:
+            trace.append(message)
+        if not is_json_encodable(t, failure_callback=failure_callback):
+            # Argument `t` must be JSON encodable.
+            raise TypeError(&#34;Type %s is not json-encodable. Trace:\n%s&#34;%(str(t), &#34;\n&#34;.join(trace)))
+        trace = []
+        if not is_instance(obj, t, failure_callback=failure_callback):
+            # Argument `obj` must be an instance of argument `t`.
+            raise TypeError(&#34;Object %s is not of type %s. Trace:\n%s&#34;%(short_str(obj), str(t), &#34;\n&#34;.join(trace)))
     if t in JSON_BASE_TYPES:
         # JSON basic types are returned unchanged.
         return obj
@@ -479,30 +507,27 @@ When encoding dictionaries, the keys used in the encoding follow the following c
     if is_namedtuple(t):
         # Namedtuples are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
         field_types = getattr(t, &#34;_field_types&#34;)
-        json_dict = OrderedDict() # type:ignore
-        for field in field_types:
-            json_dict[field] = to_json_obj(getattr(obj, field), field_types[field])
-        return json_dict
+        return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # Generics from the `typing` module.
         if t.__origin__ is Union:
             # values in a `typing.Union` are JSON-encoded using the first type in the union that the object is found to be an instance of.
             for s in t.__args__:
                 if is_instance(obj, s):
-                    return to_json_obj(obj, s)
+                    return to_json_obj(obj, s, use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists)
             raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover
         if t.__origin__ is Literal:
             # `typing_extensions.Literal` are returned unchanged
             return obj
         if t.__origin__ in (list, set, frozenset, deque):
             # `typing.List`, `typing.Set`, `typing.FrozenSet` and `typing.Deque` are turned into lists, with their elements recursively JSON-encoded
-            return [to_json_obj(x, t.__args__[0]) for x in obj]
+            return _to_json_obj_homogeneous_collection(obj, t.__args__[0], use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
         if t.__origin__ is tuple:
             # `typing.Tuple` are turned into lists, with their elements recursively JSON-encoded
             if len(t.__args__) == 2 and t.__args__[1] is ...: # pylint:disable=no-else-return
-                return [to_json_obj(x, t.__args__[0]) for x in obj]
+                return _to_json_obj_homogeneous_collection(obj, t.__args__[0], use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
             else:
-                return [to_json_obj(x, t.__args__[i]) for i, x in enumerate(obj)]
+                return [to_json_obj(x, t.__args__[i], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for i, x in enumerate(obj)]
         if t.__origin__ in (dict, OrderedDict, Mapping):
             # `typing.Dict` and `typing.Mapping` are turned into dictionaries and `typing.OrderedDict` are turned into ordered dictionaries.
             # The values are recursively JSON-encoded. Keys require special handling.
@@ -510,25 +535,25 @@ When encoding dictionaries, the keys used in the encoding follow the following c
             if t.__args__[0] in JSON_BASE_TYPES+(Decimal, None,):
                 # Keys of JSON basic types, `decimal.Decimal` and `None` are recursively JSON-encoded.
                 # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for field in fields]
             elif (hasattr(t.__args__[0], &#34;__origin__&#34;) and t.__args__[0].__origin__ is Literal):
                 # Keys of `typing_extensions.Literal` types are recursively JSON-encoded.
                 # encoded_fields = [field for field in fields] # pylint: disable = unnecessary-comprehension
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for field in fields]
             elif isinstance(t.__args__[0], EnumMeta):
                 # Keys of enumeration types are recursively JSON-encoded.
-                encoded_fields = [to_json_obj(field, t.__args__[0]) for field in fields]
+                encoded_fields = [to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for field in fields]
             else:
                 # Keys of any other type are recursively JSON-encoded and then JSON dumped to strings.
-                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0])) for field in fields]
+                encoded_fields = [json.dumps(to_json_obj(field, t.__args__[0], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists)) for field in fields]
             if t.__origin__ in (dict, Mapping):
                 # A `dict`is used for `typing.Dict` and `typing.Mapping`.
-                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1]) for i, field in enumerate(fields)}
+                return {encoded_fields[i]: to_json_obj(obj[field], t.__args__[1], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists) for i, field in enumerate(fields)}
             if t.__origin__ is OrderedDict:
                 # A `collections.OrderedDict` is used for `typing.OrderedDict`.
                 new_ordered_dict = OrderedDict() # type:ignore
                 for i, field in enumerate(fields):
-                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1])
+                    new_ordered_dict[encoded_fields[i]] = to_json_obj(obj[field], t.__args__[1], use_decimal=use_decimal, typecheck=False, namedtuples_as_lists=namedtuples_as_lists)
                 return new_ordered_dict
     raise AssertionError(_UNREACHABLE_ERROR_MSG) # pragma: no cover</code></pre>
 </details>

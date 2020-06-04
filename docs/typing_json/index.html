@@ -38,7 +38,7 @@ functionality of the builtin <code>isinstance</code> to include all the addition
 The function <a title="typing_json.typechecking.is_instance" href="typechecking.html#typing_json.typechecking.is_instance"><code>is_instance()</code></a> deviates from the behaviour of the builtin <code>isinstance</code> on the literals <code>True</code>/<code>False</code>,
 which are not deemed of type <code>int</code>, and on integral instances of <code>decimal.Decimal</code>, which are deemed of type <code>int</code> if the optional parameter
 <code>cast_decimal</code> is set to <code>True</code> (its default value).</p>
-<p>(Version: 0.1.0)</p>
+<p>(Version: 0.1.1)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -66,7 +66,7 @@ which are not deemed of type <code>int</code>, and on integral instances of <cod
     which are not deemed of type `int`, and on integral instances of `decimal.Decimal`, which are deemed of type `int` if the optional parameter
     `cast_decimal` is set to `True` (its default value).
 
-    (Version: 0.1.0)
+    (Version: 0.1.1)
 &#34;&#34;&#34;
 
 # standard imports
@@ -82,7 +82,7 @@ from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_
 
 
 name: str = &#34;typing_json&#34;
-__version__: str = &#34;0.1.0&#34;
+__version__: str = &#34;0.1.1.post2&#34;
 
 def dump(obj: Any, encoded_type: Type, fp, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, default=None, sort_keys=False, **kw) -&gt; None:
     # pylint: disable = too-many-arguments
