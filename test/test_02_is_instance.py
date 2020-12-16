@@ -8,7 +8,7 @@ from collections import deque, OrderedDict
 from decimal import Decimal
 
 # external dependencies
-from typing_extensions import Literal
+from typing_extensions import Literal, TypedDict
 
 # internal imports
 from typing_json.typechecking import is_instance, TYPECHECKABLE_BASE_TYPES
@@ -130,6 +130,39 @@ def test_is_instance_namedtuple():
     assert not is_instance(t2, NamedTupleExample1T, failure_callback=failure_callback)
     assert not is_instance(c, NamedTupleExample1T, failure_callback=failure_callback)
     assert not is_instance(t1._replace(value="1"), NamedTupleExample1T, failure_callback=failure_callback)
+
+
+
+
+def test_is_instance_typed_dict():
+    """ Tests `is_instance` on namedtuples. """
+    class NamedTupleExample1T(TypedDict, total=True):
+        # pylint:disable=all
+        name: str
+        value: int
+    class NamedTupleExample2T(TypedDict, total=False):
+        # pylint:disable=all
+        name: str = "hello"
+        value: int
+    class ClassExampleT(NamedTuple):
+        # pylint:disable=all
+        name: str
+        value: int
+    t1 = {"name": "t1", "value": 1}
+    t2 = {"value": 1}
+    t3 = {"name": "t3"}
+    t4 = {"name": "t4", "value": "blah"}
+    c = ClassExampleT("c", 1)
+    assert is_instance(t1, NamedTupleExample1T, failure_callback=failure_callback)
+    assert is_instance(t1, NamedTupleExample2T, failure_callback=failure_callback)
+    assert not is_instance(t2, NamedTupleExample1T, failure_callback=failure_callback)
+    assert is_instance(t2, NamedTupleExample2T, failure_callback=failure_callback)
+    assert not is_instance(t3, NamedTupleExample1T, failure_callback=failure_callback)
+    assert is_instance(t3, NamedTupleExample2T, failure_callback=failure_callback)
+    assert not is_instance(t4, NamedTupleExample1T, failure_callback=failure_callback)
+    assert not is_instance(t4, NamedTupleExample2T, failure_callback=failure_callback)
+    assert not is_instance(c, NamedTupleExample1T, failure_callback=failure_callback)
+    assert not is_instance(c, NamedTupleExample2T, failure_callback=failure_callback)
 
 
 def test_is_instance_union():

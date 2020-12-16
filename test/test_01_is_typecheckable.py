@@ -5,7 +5,7 @@
 from typing import Union, Optional, List, Tuple, Set, FrozenSet, Mapping, Dict, OrderedDict, NamedTuple
 
 # external dependencies
-from typing_extensions import Literal
+from typing_extensions import Literal, TypedDict
 
 # internal imports
 from typing_json.typechecking import is_typecheckable, TYPECHECKABLE_BASE_TYPES
@@ -123,3 +123,28 @@ def test_is_typecheckable_namedtuple():
         name: List[NonTypechekableT]
         value: Union[int, float]
     assert not is_typecheckable(NonTypecheckableNamedTupleExampleT, failure_callback=failure_callback)
+
+def test_is_typecheckable_typed_dict():
+    """
+        Tests that typed dicts are typecheckable if
+        and only if their attributes are of typecheckable type.
+    """
+    class TypedDictExample1T(TypedDict):
+        name: Tuple[str, ...]
+        value: Union[int, float]
+    assert is_typecheckable(TypedDictExample1T, failure_callback=failure_callback)
+    class TypedDictExample2T(TypedDict):
+        name: List[str] = ["Hello"]
+        value: Union[int, float]
+    assert is_typecheckable(TypedDictExample2T, failure_callback=failure_callback)
+    class NonTypechekableT:
+        name: str
+        val: int
+    class NonTypecheckableTypedDictExample1T(TypedDict):
+        name: List[NonTypechekableT]
+        value: Union[int, float]
+    assert not is_typecheckable(NonTypecheckableTypedDictExample1T, failure_callback=failure_callback)
+    class NonTypecheckableTypedDictExample2T(TypedDict):
+        name: str = 10
+        value: Union[int, float]
+    assert not is_typecheckable(NonTypecheckableTypedDictExample2T, failure_callback=failure_callback)

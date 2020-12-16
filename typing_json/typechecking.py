@@ -128,7 +128,10 @@ def is_typecheckable(t: Any, failure_callback: Optional[Callable[[str], None]] =
         - it is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or variadic `typing.Tuple` and its generic type argument is typecheckable;
         - it is one of `typing.Dict`, `typing.OrderedDict`, `typing.Mapping`, `typing.Union` or fixed-length `typing.Tuple` and all of its generic type arguments are typecheckable;
         - it is a `typing.Literal` including literals of one of the JSON basic types `bool`, `int`, `float`, `str` or `NoneType`;
-        - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type.
+        - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type;
+        - it is a typed dictionary according to `typing_json.typechecking.is_typed_dict` and all of its values are of typecheckable type.
+
+        (Version 0.1.3)
     """
     # pylint: disable = too-many-return-statements, too-many-branches
     if t in TYPECHECKABLE_BASE_TYPES:
@@ -168,6 +171,10 @@ def is_typecheckable(t: Any, failure_callback: Optional[Callable[[str], None]] =
             return _not_typecheckable("Not all type arguments of literal type %s are of JSON basic type."%str(t), failure_callback=failure_callback)
     if is_namedtuple(t, failure_callback=failure_callback):
         # Types inheriting from `typing.NamedTuple` are typecheckable, because `is_namedtuple` already
+        # enforces fields to be of typecheckable type.
+        return True
+    if is_typed_dict(t, failure_callback=failure_callback):
+        # Types inheriting from `typing.TypedDict` are typecheckable, because `is_typed_dict` already
         # enforces fields to be of typecheckable type.
         return True
     return _not_typecheckable("Type %s is not typecheckable."%str(t), failure_callback=failure_callback)
@@ -261,6 +268,20 @@ def is_instance(obj: Any, t: Type, failure_callback: Optional[Callable[[str], No
             field_val = getattr(obj, field)
             if not is_instance(field_val, field_types[field], failure_callback=failure_callback, cast_decimal=cast_decimal):
                 return _not_instance("Value %s is not of type %s: wrong type %s for field %s, expected %s."%(short_str(obj), str(t), str(type(field_val)), field, str(field_types[field])), failure_callback=failure_callback)
+        return True
+    if is_typed_dict(t, failure_callback=failure_callback):
+        # For typed dictionaries, check that all fields have value of designated type, and that they are all defined if `t.__total__` is `True`.
+        if not isinstance(obj, dict):
+            return _not_instance("Value %s is not of type %s: wrong class %s (expected `dict`)."%(short_str(obj), str(t), str(obj.__class__)), failure_callback=failure_callback)
+        field_types = getattr(t, "__annotations__")
+        total = getattr(t, "__total__")
+        for field in field_types:
+            if total and field not in obj:
+                return _not_instance("Value %s is not of type %s: missing field %s (typed dict is total)."%(short_str(obj), str(t), field), failure_callback=failure_callback)
+            if field in obj:
+                field_val = obj[field]
+                if not is_instance(field_val, field_types[field], failure_callback=failure_callback, cast_decimal=cast_decimal):
+                    return _not_instance("Value %s is not of type %s: wrong type %s for field %s, expected %s."%(short_str(obj), str(t), str(type(field_val)), field, str(field_types[field])), failure_callback=failure_callback)
         return True
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         # Special cases for `typing` generics.
@@ -428,4 +449,62 @@ def is_namedtuple(t: Type, failure_callback: Optional[Callable[[str], None]] = N
     for n in fields:
         if n not in dir(t):
             return _not_namedtuple("Field %s appears in _fields but not in dir(%s)."%(n, str(t)), failure_callback=failure_callback)
+    return True
+
+
+def _not_typed_dict(message: str, failure_callback: Optional[Callable[[str], None]]) -> Literal[False]:
+    """ Utility message to fail (return `False`) by first calling an optional failure callback. """
+    if failure_callback:
+        failure_callback(message)
+    return False
+
+
+def is_typed_dict(t: Type, failure_callback: Optional[Callable[[str], None]] = None, check_typecheckable: bool = True, cast_decimal: bool = True) -> bool:
+    """
+        Checks whether `t` is a type constructed using `typing_extensions.TypedDict`, using the following procedure:
+
+        1. checks for existence of the attribute `t.__bases__`, containing the base classes of `t`;
+        2. checks that there is exactly one base class in `t.__bases__`, namely `dict`;
+        3. checks for existence of the attribute `t.__annotations__`;
+        4. checks that `t.__annotations__` is a `dict` with `string` keys;
+        3. checks for existence of the attribute `t.__total__`;
+        4. checks that `t.__total__` is a `bool`;
+
+        The procedure above weeds out many incorrect examples, but certainly needs to be improved to catch all exceptions.
+        Field types are ex
+
+        If the optional parameter `check_typecheckable` is set to `True` (default: `True`), an additional check is added,
+        for all field types to be typecheckable according to `typing_json.typechecking.is_typecheckable`.
+        If the optional parameter `check_typecheckable` is set to `True` (default: `True`), an additional check is added,
+        for all field default values to be instances of the corresponding field types, according to `typing_json.typechecking.is_instance` (the value
+        of the optional parameter `cast_decimal` is passed to `typing_json.typechecking.is_instance` when performing this check).
+
+        (Version 0.1.3)
+    """
+    # pylint:disable = too-many-return-statements, too-many-branches, protected-access
+    if not hasattr(t, "__bases__"):
+        return _not_typed_dict("Type %s has no attribute __bases__."%str(t), failure_callback=failure_callback)
+    base_classes = t.__bases__
+    if len(base_classes) != 1 or base_classes[0] != dict:
+        return _not_typed_dict("Attribute bases for type %s should be [dict], found %s instead"%(str(t), str(t.__bases__)), failure_callback=failure_callback)
+    if not hasattr(t, "__annotations__"):
+        return _not_typed_dict("Type %s has no attribute __annotations__."%str(t), failure_callback=failure_callback)
+    fields = getattr(t, "__annotations__")
+    if not isinstance(fields, dict):
+        return _not_typed_dict("Attribute __annotations__ for type %s should be a dict, found %s instead."%(str(t), str(fields)), failure_callback=failure_callback)
+    if not all(isinstance(n, str) for n in fields):
+        return _not_typed_dict("Attribute __annotations__ for type %s should be a dict of strings, found %s instead."%(str(t), str(fields)), failure_callback=failure_callback)
+    if not hasattr(t, "__total__"):
+        return _not_typed_dict("Type %s has no attribute __total__."%str(t), failure_callback=failure_callback)
+    total = getattr(t, "__total__")
+    if not isinstance(total, bool):
+        return _not_typed_dict("Attribute __total__ for type %s should be bool, found %s instead."%(str(t), str(total)), failure_callback=failure_callback)
+    for n in fields:
+        if check_typecheckable and not is_typecheckable(fields[n], failure_callback=failure_callback):
+            return _not_typed_dict("Field %s for type %s has non-typecheckable field type %s."%(n, str(t), str(fields[n])), failure_callback=failure_callback)
+        if hasattr(t, n):
+            # default value set for this field
+            field_default = getattr(t, n)
+            if check_typecheckable and not is_instance(field_default, fields[n], failure_callback=failure_callback, cast_decimal=cast_decimal):
+                return _not_typed_dict("Default value for field %s of type %s should be of type %s, found type %s instead."%(n, str(t), str(fields[n]), str(type(field_default))), failure_callback=failure_callback)
     return True

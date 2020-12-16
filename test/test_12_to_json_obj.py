@@ -9,7 +9,7 @@ from decimal import Decimal
 from collections import deque, OrderedDict
 
 # external dependencies
-from typing_extensions import Literal
+from typing_extensions import Literal, TypedDict
 
 # internal imports
 from typing_json.typechecking import TYPECHECKABLE_BASE_TYPES
@@ -205,3 +205,8 @@ def test_to_json_obj_large_collections_namedtuple():
     assert to_json_obj(large_list, List[Pair], namedtuples_as_lists=True) == large_list_encoding_lists
     assert to_json_obj(large_list, List[Pair], namedtuples_as_lists=False) == large_list_encoding_dicts
 
+def test_to_json_typed_dict():
+    class Pair(TypedDict):
+        left: int
+        right: int
+    assert to_json_obj({"left": 0, "right": 1}, Pair) == {"left": 0, "right": 1}

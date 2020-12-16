@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="typing-json",
-    version="0.1.2",
+    version="0.1.3",
     author="sg495",
     author_email="sg495@users.noreply.github.com",
     description="Type-aware Python JSON serialization and validation.",

@@ -22,7 +22,7 @@ from typing import Any, Callable, List, Optional, Union, Type
 from typing_extensions import Literal
 
 # internal imports
-from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_typecheckable, JSON_BASE_TYPES, short_str
+from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_typecheckable, is_typed_dict, JSON_BASE_TYPES, short_str
 
 
 _UNREACHABLE_ERROR_MSG = "Should never reach this point, please open an issue on GitHub."
@@ -50,11 +50,13 @@ def is_json_encodable(t: Type, failure_callback: Optional[Callable[[str], None]]
         - if `t` is `None` (used as an alias for `NoneType`);
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`);
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable;
+        - if `t` is a typed dictionary according to `typing_json.typechecking.is_typed_dict` and all its values are JSON encodable;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or a variadic `typing.Tuple` and its generic type argument is JSON encodable;
         - if `t` is a `typing.Union` or a fixed-length `typing.Tuple` and all of its generic type arguments are JSON encodable;
         - if `t` is a `typing.Dict`, `typing.OrderedDict` or `typing.Mapping`, its generic key type is keyable (according to `typing_json.typechecking.is_keyable`) and both its generic key and value types are JSON encodable;
         - if `t` is a `typing_extensions.Literal` and all of its literal arguments are of JSON basic type.
 
+        (Version 0.1.3)
     """
     # pylint: disable = too-many-return-statements, too-many-branches
     if not is_typecheckable(t, failure_callback=failure_callback):
@@ -78,6 +80,12 @@ def is_json_encodable(t: Type, failure_callback: Optional[Callable[[str], None]]
             # namedtuples are encodable if all their fields are of encodable types
             return True
         return _not_json_encodable("Not all fields of namedtuple %s are json-encodable."%str(t), failure_callback=failure_callback)
+    if is_typed_dict(t):
+        field_types = getattr(t, "__annotations__")
+        if all(is_json_encodable(field_types[field], failure_callback=failure_callback) for field in field_types):
+            # typed dicts are encodable if all their fields are of encodable types
+            return True
+        return _not_json_encodable("Not all fields of typed dict %s are json-encodable."%str(t), failure_callback=failure_callback)
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         # `typing` generics
         if t.__origin__ in (list, set, frozenset, deque, Optional):
@@ -160,6 +168,7 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = 
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`), the enum value name `obj._name_` is returned;
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `False`, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `True`, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);
+        - if `t` is a typed dict according to `typing_json.typechecking.is_typed_dict` and all its values are JSON encodable, then a dictionary is returned with the same keys as `obj` and JSON-encoded values using the types specified by `t`.
         - if `t` is `typing.Union`, the generic type arguments in the union are tried one after the other until a `u` is found such that `is_instance(obj, u)`, then `obj` is JSON-encoded using `u` as its type.
         - if `t` is a `typing_extensions.Literal`, `obj` is returned unchanged;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` or `typing.Tuple`, a list is returned containing the elements of the original collection, recursively JSON-encoded;
@@ -177,6 +186,7 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = 
         An optional parameter `typecheck` (default: `True`) can be used to skip the check that `t` be JSON encodable and that `obj` be an instance of `t`.
         The parameter `typecheck` is set to `False` in all recursive calls (i.e. typechecking is only done once).
 
+        (Version 0.1.3)
     """
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
     if typecheck:
@@ -209,6 +219,18 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = 
         # Namedtuples are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
         field_types = getattr(t, "_field_types")
         return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
+    if is_typed_dict(t):
+        # Typed dicts are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
+        field_types = getattr(t, "__annotations__")
+        # return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
+        # A `dict`is used for `typing.Dict` and `typing.Mapping`.
+        return {
+            field: to_json_obj(obj[field], field_type,
+                               use_decimal=use_decimal,
+                               typecheck=False,
+                               namedtuples_as_lists=namedtuples_as_lists)
+            for field, field_type in field_types.items()
+        }
     if hasattr(t, "__origin__") and hasattr(t, "__args__"):
         # Generics from the `typing` module.
         if t.__origin__ is Union:

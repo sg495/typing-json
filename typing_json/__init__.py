@@ -78,7 +78,7 @@ def load(fp, decoded_type: Type, cast_decimal: bool = True, cls=None, parse_floa
     return from_json_obj(obj, decoded_type, cast_decimal=cast_decimal)
 
 
-def loads(s: str, decoded_type: Type, cast_decimal: bool = True, encoding=None, cls=None, parse_float=Decimal, parse_int=None, parse_constant=None, **kw) -> Any:
+def loads(s: str, decoded_type: Type, cast_decimal: bool = True, cls=None, parse_float=Decimal, parse_int=None, parse_constant=None, **kw) -> Any:
     # pylint: disable = too-many-arguments
     """
         Calls `json.load`, then decodes `obj` from the resulting JSON object using `decoded_type` as a type hint.
@@ -87,5 +87,5 @@ def loads(s: str, decoded_type: Type, cast_decimal: bool = True, encoding=None, 
     """
     if not is_json_encodable(decoded_type):
         raise TypeError("Type %s is not json-encodable."%str(decoded_type))
-    obj = json.loads(s, encoding=encoding, cls=cls, parse_float=parse_float, parse_int=parse_int, parse_constant=parse_constant, object_pairs_hook=collections.OrderedDict, **kw)
+    obj = json.loads(s, cls=cls, parse_float=parse_float, parse_int=parse_int, parse_constant=parse_constant, object_pairs_hook=collections.OrderedDict, **kw)
     return from_json_obj(obj, decoded_type, cast_decimal=cast_decimal)

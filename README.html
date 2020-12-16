@@ -1056,10 +1056,21 @@ body .markdown-body
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
 </style><title>README</title></head><body><article class="markdown-body"><h1 id="welcome-to-the-typing_json-library">Welcome to the <code>typing_json</code> library<a class="headerlink" href="#welcome-to-the-typing_json-library" title="Permanent link"></a></h1>
+<p><a href="https://travis-ci.com/sg495/typing-json"><img alt="Build Status" src="https://api.travis-ci.com/sg495/typing-json.svg?branch=master" /></a>
+<a href="https://codecov.io/gh/sg495/typing-json/"><img alt="codecov" src="https://codecov.io/gh/sg495/typing-json/graph/badge.svg" /></a>
+<a href="https://shields.io/"><img alt="Generic badge" src="https://img.shields.io/badge/python-3.7.4+-green.svg" /></a>
+<a href="http://mypy-lang.org/"><img alt="Checked with mypy" src="http://www.mypy-lang.org/static/mypy_badge.svg" /></a>
+<a href="https://pypi.python.org/pypi/typing-json/"><img alt="PyPI version shields.io" src="https://img.shields.io/pypi/v/typing-json.svg" /></a>
+<a href="https://pypi.python.org/pypi/typing-json/"><img alt="PyPI status" src="https://img.shields.io/pypi/status/typing-json.svg" /></a>
+<a href="https://choosealicense.com/licenses/mit/"><img alt="Generic badge" src="https://img.shields.io/badge/license-MIT-green.svg" /></a></p>
 <p>The <code>typing_json</code> library offers type-aware JSON encoding and decoding functionalities, on top of those offered by the builtin <code>json</code> library. The functions <code>dump</code>, <code>dumps</code>, <code>load</code> and <code>loads</code> mirror the functionality of their <code>json</code> counterparts, adding type-aware encoding/decoding and runtime type-checking of decoded objects.</p>
 <p>Supported types include JSON basic types, <code>Decimal</code>, typed collections from the <code>typing</code> library, literal types, union types, optional types and typed namedtuples. For a full list of types, see below.
 The function <code>is_instance</code> extends the functionality of the builtin <code>isinstance</code> to include all the additional types supported by this library.</p>
 <p>The <a href="https://sg495.github.io/typing-json/typing_json/index.html">documentation</a> for this library was generated with <a href="https://pdoc3.github.io/pdoc/">pdoc</a>.</p>
+<p>You can install the <code>typing_json</code> library with pip:</p>
+<div class="codehilite"><pre>pip install typing_json
+</pre></div>
+
 <h2 id="main-goals">Main goals<a class="headerlink" href="#main-goals" title="Permanent link"></a></h2>
 <p>There are two main drivers behind the development of the <code>typing_json</code> library:</p>
 <ol>
@@ -1080,6 +1091,7 @@ This guarantees that data successfully de-serialised from JSON using the <code>l
 <li>the type <code>Decimal</code> from the <code>decimal</code> builtin (cf. below for the handling of numerical types);</li>
 <li>the following typed collections from the <code>typing</code> builtin library, as long as all generic type arguments are themselves supported: <code>List</code>, <code>Tuple</code>, <code>Deque</code>, <code>Set</code>, <code>FrozenSet</code>;</li>
 <li>typed namedtuples constructed using <code>NamedTuple</code> from the builtin <code>typing</code> library, as long as all fields are of supported type;</li>
+<li>typed dictionaries constructed using <code>TypedDict</code> from the <code>typing_extensions</code> library, as long as all fields are of supported type;</li>
 <li>the following typed collections from the <code>typing</code> builtin library, as long as the generic key/value generic type arguments are themselves supported: <code>Dict</code>, <code>Mapping</code> and <code>OrderedDict</code> (see below for additional requirements on the key generic type arguments and special behaviour on JSON encoding/decoding of keys);</li>
 <li>enumeration types</li>
 <li>the <code>Literal</code> types from the <code>typing_extensions</code> library, as long as all literal are of one of the JSON basic types above;</li>
@@ -1092,7 +1104,8 @@ This guarantees that data successfully de-serialised from JSON using the <code>l
 
 <p>The optional parameter <code>failure_callback</code> can be used to pass a <code>Callable[[str], None]</code> that will be used to log any error messages.
 The following provides an example of usage:</p>
-<div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+<div class="codehilite"><pre><span class="c1"># Python 3.7.4</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing_json</span> <span class="kn">import</span> <span class="n">is_json_encodable</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">error_log</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">my_callback</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">error_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -1277,7 +1290,7 @@ This informs the following handling of number types in the <code>to_json_obj</co
 <span class="c1"># TypeError: Object Decimal(&#39;1.0&#39;) is not of json basic type t=&lt;class &#39;int&#39;&gt;.</span>
 </pre></div>
 
-<p>To ensure that decimal precision is maintained, instances <code>Decimal</code> are always encoded into JSON as strings:</p>
+<p>To ensure that decimal precision is maintained, instances <code>Decimal</code> are ordinarily encoded into JSON as strings:</p>
 <div class="codehilite"><pre><span class="c1"># Python 3.7.4</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing_json</span> <span class="kn">import</span> <span class="n">to_json_obj</span>
@@ -1415,6 +1428,38 @@ If the namedtuple has fields with default values, <code>from_json_obj</code> wil
 </pre></div>
 
 <p>If a field in the namedtuple does not have a default value and does not appear in the dictionary, <code>from_json_obj</code> will raise <code>TypeError</code>.</p>
+<h2 id="typed-dictionaries">Typed Dictionaries<a class="headerlink" href="#typed-dictionaries" title="Permanent link"></a></h2>
+<p>Instances of typed dictionaries constructed with <code>TypedDict</code> are encoded by <code>to_json_obj</code> as JSON dictionaries (ordered), with the same keys and JSON-encoded values:</p>
+<div class="codehilite"><pre><span class="c1"># Python 3.8.3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing_json</span> <span class="kn">import</span> <span class="n">to_json_obj</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Network</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">nodes</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="o">...</span>     <span class="n">edges</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">network</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">},</span> <span class="s">&quot;edges&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)}}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">to_json_obj</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">Network</span><span class="p">)</span>
+<span class="n">OrderedDict</span><span class="p">([(</span><span class="s">&#39;nodes&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="p">(</span><span class="s">&#39;edges&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dict</span><span class="p">(</span><span class="n">to_json_obj</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">Network</span><span class="p">))</span>
+<span class="p">{</span><span class="s">&#39;nodes&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;edges&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]}</span>
+</pre></div>
+
+<p>JSON dictionaries are decoded by <code>from_json_obj</code> to instances of typed dictionaries depending on the specified type, with values recursively decoded from the values of the dictionary:</p>
+<div class="codehilite"><pre><span class="c1"># Python 3.8.3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing_json</span> <span class="kn">import</span> <span class="n">from_json_obj</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">Network</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">nodes</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="o">...</span>     <span class="n">edges</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">from_json_obj</span><span class="p">({</span><span class="s">&#39;nodes&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;edges&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]},</span> <span class="n">Network</span><span class="p">)</span>
+<span class="p">{</span><span class="s">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">},</span> <span class="s">&quot;edges&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)}}</span>
+</pre></div>
+
+<p>While <code>collections.OrderedDict</code> is always used by <code>to_json_obj</code> when encoding typed dictionaries, but <code>from_json_obj</code> will also accept ordinary dictionaries (because the order of fields is already determined by the typed dictionary).</p>
 <h2 id="dictionaries">Dictionaries<a class="headerlink" href="#dictionaries" title="Permanent link"></a></h2>
 <p>Instances of <code>Mapping</code> and <code>Dict</code> are encoded by <code>to_json_obj</code> as JSON dictionaries, with their keys and values recursively encoded and their keys stringified if necessary (cf. below).
 Instances of <code>OrderedDict</code> follow the exact same rules, but are encoded as instances of <code>collections.OrderedDict</code> rather than instances of <code>dict</code>.</p>
@@ -1543,7 +1588,8 @@ The serialisation then proceeds using <code>T</code> as the static type:</p>
 <p>This works well as long as the JSON encodings of the types are disjoint, as is the case for all JSON basic types.
 Unfortunately, some issues arise with overlapping union types, explained more in detail below.
 In short: if two types in a <code>Union</code> have overlapping JSON encodings (e.g. <code>List</code> and <code>Set</code> are both encoded into JSON using lists), they may be deserialised to the incorrect runtime type (though the static <code>Union</code> type will still be respected).</p>
-<div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
+<div class="codehilite"><pre><span class="c1"># Python 3.7.4</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">typing_json</span> <span class="kn">import</span> <span class="n">dumps</span><span class="p">,</span> <span class="n">loads</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">UnionT</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">dumps</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">UnionT</span><span class="p">)</span>

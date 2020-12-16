@@ -9,7 +9,7 @@ from decimal import Decimal
 from collections import deque, OrderedDict
 
 # external dependencies
-from typing_extensions import Literal
+from typing_extensions import Literal, TypedDict
 
 # internal imports
 from typing_json.typechecking import TYPECHECKABLE_BASE_TYPES
@@ -265,3 +265,32 @@ def test_from_json_obj_large_collections_namedtuple():
     assert from_json_obj(to_json_obj(large_list, List[Pair], namedtuples_as_lists=False), List[Pair]) == large_list
     assert from_json_obj(to_json_obj(large_list, List[Pair], namedtuples_as_lists=True), List[Pair]) == large_list
 
+
+def test_from_json_typed_dict():
+    class Pair(TypedDict, total=True):
+        left: int
+        right: int
+    assert from_json_obj({"left": 0, "right": 1}, Pair) == {"left": 0, "right": 1}
+    try:
+        from_json_obj("not a dict", Pair)
+        assert False, "Should not be decoding string as TypedDict."
+    except TypeError:
+        assert True
+    try:
+        from_json_obj({"left": 0}, Pair)
+        assert False, "Should not be decoding dict with missing key as TypedDict (total=True)."
+    except TypeError:
+        assert True
+    try:
+        from_json_obj({"left": 0, "right": 1, "center": 2}, Pair)
+        assert False, "Should not be decoding dict with extra key as TypedDict (total=True)."
+    except TypeError:
+        assert True
+    class PartialPair(TypedDict, total=False):
+        left: int
+        right: int
+    try:
+        from_json_obj({"left": 0}, PartialPair)
+        assert True, "Should be decoding dict with missing key as TypedDict (total=False)."
+    except TypeError:
+        assert False

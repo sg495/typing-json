@@ -46,6 +46,7 @@ The following types are currently supported by the `typing_json` library:
 - the type `Decimal` from the `decimal` builtin (cf. below for the handling of numerical types);
 - the following typed collections from the `typing` builtin library, as long as all generic type arguments are themselves supported: `List`, `Tuple`, `Deque`, `Set`, `FrozenSet`;
 - typed namedtuples constructed using `NamedTuple` from the builtin `typing` library, as long as all fields are of supported type;
+- typed dictionaries constructed using `TypedDict` from the `typing_extensions` library, as long as all fields are of supported type;
 - the following typed collections from the `typing` builtin library, as long as the generic key/value generic type arguments are themselves supported: `Dict`, `Mapping` and `OrderedDict` (see below for additional requirements on the key generic type arguments and special behaviour on JSON encoding/decoding of keys);
 - enumeration types
 - the `Literal` types from the `typing_extensions` library, as long as all literal are of one of the JSON basic types above;
@@ -451,6 +452,45 @@ Employee(name='John', id=3) # default "id" value from `Employee`
 ```
 
 If a field in the namedtuple does not have a default value and does not appear in the dictionary, `from_json_obj` will raise `TypeError`.
+
+
+## Typed Dictionaries
+
+Instances of typed dictionaries constructed with `TypedDict` are encoded by `to_json_obj` as JSON dictionaries (ordered), with the same keys and JSON-encoded values:
+
+```python
+# Python 3.8.3
+>>> from collections import OrderedDict
+>>> from typing import Set, Tuple
+>>> from typing_extensions import TypedDict
+>>> from typing_json import to_json_obj
+>>> class Network(TypedDict):
+...     nodes: Set[int]
+...     edges: Set[Tuple[int, int]]
+...
+>>> network = {"nodes": {0, 1, 2}, "edges": {(0, 1), (1, 2), (0, 2)}}
+>>> to_json_obj(network, Network)
+OrderedDict([('nodes', [0, 1, 2]), ('edges', [[0, 1], [0, 2], [1, 2]])])
+>>> dict(to_json_obj(network, Network))
+{'nodes': [0, 1, 2], 'edges': [[0, 1], [0, 2], [1, 2]]}
+```
+
+JSON dictionaries are decoded by `from_json_obj` to instances of typed dictionaries depending on the specified type, with values recursively decoded from the values of the dictionary:
+
+```python
+# Python 3.8.3
+>>> from typing import Set, Tuple
+>>> from typing_extensions import TypedDict
+>>> from typing_json import from_json_obj
+>>> class Network(TypedDict):
+...     nodes: Set[int]
+...     edges: Set[Tuple[int, int]]
+...
+>>> from_json_obj({'nodes': [0, 1, 2], 'edges': [[0, 1], [0, 2], [1, 2]]}, Network)
+{"nodes": {0, 1, 2}, "edges": {(0, 1), (1, 2), (0, 2)}}
+```
+
+While `collections.OrderedDict` is always used by `to_json_obj` when encoding typed dictionaries, but `from_json_obj` will also accept ordinary dictionaries (because the order of fields is already determined by the typed dictionary).
 
 
 ## Dictionaries

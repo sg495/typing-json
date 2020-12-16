@@ -3,16 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.5" />
+<meta name="generator" content="pdoc 0.9.1" />
 <title>typing_json.typechecking API documentation</title>
 <meta name="description" content="The `typing_json.typechecking` module provides functionality for dynamic typechecking …" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script async src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_CHTML'></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -21,8 +23,8 @@
 <h1 class="title">Module <code>typing_json.typechecking</code></h1>
 </header>
 <section id="section-intro">
-<p>The <a title="typing_json.typechecking" href="#typing_json.typechecking"><code>typing_json.typechecking</code></a> module provides functionality for dynamic typechecking.</p>
-<p>The core functionality is provided by <a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance"><code>is_instance()</code></a>, which extends
+<p>The <code><a title="typing_json.typechecking" href="#typing_json.typechecking">typing_json.typechecking</a></code> module provides functionality for dynamic typechecking.</p>
+<p>The core functionality is provided by <code><a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance">is_instance()</a></code>, which extends
 the builtin <code>isinstance</code> to deal with certain typed collections created using the <code>typing</code> module,
 as well as literal types, optional types, unions and (certain) typed namedtuples.</p>
 <p>(Version: 0.1.1)</p>
@@ -160,7 +162,10 @@ def is_typecheckable(t: Any, failure_callback: Optional[Callable[[str], None]] =
         - it is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or variadic `typing.Tuple` and its generic type argument is typecheckable;
         - it is one of `typing.Dict`, `typing.OrderedDict`, `typing.Mapping`, `typing.Union` or fixed-length `typing.Tuple` and all of its generic type arguments are typecheckable;
         - it is a `typing.Literal` including literals of one of the JSON basic types `bool`, `int`, `float`, `str` or `NoneType`;
-        - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type.
+        - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type;
+        - it is a typed dictionary according to `typing_json.typechecking.is_typed_dict` and all of its values are of typecheckable type.
+
+        (Version 0.1.3)
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches
     if t in TYPECHECKABLE_BASE_TYPES:
@@ -200,6 +205,10 @@ def is_typecheckable(t: Any, failure_callback: Optional[Callable[[str], None]] =
             return _not_typecheckable(&#34;Not all type arguments of literal type %s are of JSON basic type.&#34;%str(t), failure_callback=failure_callback)
     if is_namedtuple(t, failure_callback=failure_callback):
         # Types inheriting from `typing.NamedTuple` are typecheckable, because `is_namedtuple` already
+        # enforces fields to be of typecheckable type.
+        return True
+    if is_typed_dict(t, failure_callback=failure_callback):
+        # Types inheriting from `typing.TypedDict` are typecheckable, because `is_typed_dict` already
         # enforces fields to be of typecheckable type.
         return True
     return _not_typecheckable(&#34;Type %s is not typecheckable.&#34;%str(t), failure_callback=failure_callback)
@@ -293,6 +302,20 @@ def is_instance(obj: Any, t: Type, failure_callback: Optional[Callable[[str], No
             field_val = getattr(obj, field)
             if not is_instance(field_val, field_types[field], failure_callback=failure_callback, cast_decimal=cast_decimal):
                 return _not_instance(&#34;Value %s is not of type %s: wrong type %s for field %s, expected %s.&#34;%(short_str(obj), str(t), str(type(field_val)), field, str(field_types[field])), failure_callback=failure_callback)
+        return True
+    if is_typed_dict(t, failure_callback=failure_callback):
+        # For typed dictionaries, check that all fields have value of designated type, and that they are all defined if `t.__total__` is `True`.
+        if not isinstance(obj, dict):
+            return _not_instance(&#34;Value %s is not of type %s: wrong class %s (expected `dict`).&#34;%(short_str(obj), str(t), str(obj.__class__)), failure_callback=failure_callback)
+        field_types = getattr(t, &#34;__annotations__&#34;)
+        total = getattr(t, &#34;__total__&#34;)
+        for field in field_types:
+            if total and field not in obj:
+                return _not_instance(&#34;Value %s is not of type %s: missing field %s (typed dict is total).&#34;%(short_str(obj), str(t), field), failure_callback=failure_callback)
+            if field in obj:
+                field_val = obj[field]
+                if not is_instance(field_val, field_types[field], failure_callback=failure_callback, cast_decimal=cast_decimal):
+                    return _not_instance(&#34;Value %s is not of type %s: wrong type %s for field %s, expected %s.&#34;%(short_str(obj), str(t), str(type(field_val)), field, str(field_types[field])), failure_callback=failure_callback)
         return True
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # Special cases for `typing` generics.
@@ -460,6 +483,64 @@ def is_namedtuple(t: Type, failure_callback: Optional[Callable[[str], None]] = N
     for n in fields:
         if n not in dir(t):
             return _not_namedtuple(&#34;Field %s appears in _fields but not in dir(%s).&#34;%(n, str(t)), failure_callback=failure_callback)
+    return True
+
+
+def _not_typed_dict(message: str, failure_callback: Optional[Callable[[str], None]]) -&gt; Literal[False]:
+    &#34;&#34;&#34; Utility message to fail (return `False`) by first calling an optional failure callback. &#34;&#34;&#34;
+    if failure_callback:
+        failure_callback(message)
+    return False
+
+
+def is_typed_dict(t: Type, failure_callback: Optional[Callable[[str], None]] = None, check_typecheckable: bool = True, cast_decimal: bool = True) -&gt; bool:
+    &#34;&#34;&#34;
+        Checks whether `t` is a type constructed using `typing_extensions.TypedDict`, using the following procedure:
+
+        1. checks for existence of the attribute `t.__bases__`, containing the base classes of `t`;
+        2. checks that there is exactly one base class in `t.__bases__`, namely `dict`;
+        3. checks for existence of the attribute `t.__annotations__`;
+        4. checks that `t.__annotations__` is a `dict` with `string` keys;
+        3. checks for existence of the attribute `t.__total__`;
+        4. checks that `t.__total__` is a `bool`;
+
+        The procedure above weeds out many incorrect examples, but certainly needs to be improved to catch all exceptions.
+        Field types are ex
+
+        If the optional parameter `check_typecheckable` is set to `True` (default: `True`), an additional check is added,
+        for all field types to be typecheckable according to `typing_json.typechecking.is_typecheckable`.
+        If the optional parameter `check_typecheckable` is set to `True` (default: `True`), an additional check is added,
+        for all field default values to be instances of the corresponding field types, according to `typing_json.typechecking.is_instance` (the value
+        of the optional parameter `cast_decimal` is passed to `typing_json.typechecking.is_instance` when performing this check).
+
+        (Version 0.1.3)
+    &#34;&#34;&#34;
+    # pylint:disable = too-many-return-statements, too-many-branches, protected-access
+    if not hasattr(t, &#34;__bases__&#34;):
+        return _not_typed_dict(&#34;Type %s has no attribute __bases__.&#34;%str(t), failure_callback=failure_callback)
+    base_classes = t.__bases__
+    if len(base_classes) != 1 or base_classes[0] != dict:
+        return _not_typed_dict(&#34;Attribute bases for type %s should be [dict], found %s instead&#34;%(str(t), str(t.__bases__)), failure_callback=failure_callback)
+    if not hasattr(t, &#34;__annotations__&#34;):
+        return _not_typed_dict(&#34;Type %s has no attribute __annotations__.&#34;%str(t), failure_callback=failure_callback)
+    fields = getattr(t, &#34;__annotations__&#34;)
+    if not isinstance(fields, dict):
+        return _not_typed_dict(&#34;Attribute __annotations__ for type %s should be a dict, found %s instead.&#34;%(str(t), str(fields)), failure_callback=failure_callback)
+    if not all(isinstance(n, str) for n in fields):
+        return _not_typed_dict(&#34;Attribute __annotations__ for type %s should be a dict of strings, found %s instead.&#34;%(str(t), str(fields)), failure_callback=failure_callback)
+    if not hasattr(t, &#34;__total__&#34;):
+        return _not_typed_dict(&#34;Type %s has no attribute __total__.&#34;%str(t), failure_callback=failure_callback)
+    total = getattr(t, &#34;__total__&#34;)
+    if not isinstance(total, bool):
+        return _not_typed_dict(&#34;Attribute __total__ for type %s should be bool, found %s instead.&#34;%(str(t), str(total)), failure_callback=failure_callback)
+    for n in fields:
+        if check_typecheckable and not is_typecheckable(fields[n], failure_callback=failure_callback):
+            return _not_typed_dict(&#34;Field %s for type %s has non-typecheckable field type %s.&#34;%(n, str(t), str(fields[n])), failure_callback=failure_callback)
+        if hasattr(t, n):
+            # default value set for this field
+            field_default = getattr(t, n)
+            if check_typecheckable and not is_instance(field_default, fields[n], failure_callback=failure_callback, cast_decimal=cast_decimal):
+                return _not_typed_dict(&#34;Default value for field %s of type %s should be of type %s, found type %s instead.&#34;%(n, str(t), str(fields[n]), str(type(field_default))), failure_callback=failure_callback)
     return True</code></pre>
 </details>
 </section>
@@ -468,17 +549,17 @@ def is_namedtuple(t: Type, failure_callback: Optional[Callable[[str], None]] = N
 <section>
 <h2 class="section-title" id="header-variables">Global variables</h2>
 <dl>
-<dt id="typing_json.typechecking.JSON_BASE_TYPES"><code class="name">var <span class="ident">JSON_BASE_TYPES</span></code></dt>
+<dt id="typing_json.typechecking.JSON_BASE_TYPES"><code class="name">var <span class="ident">JSON_BASE_TYPES</span> : Tuple[type, ...]</code></dt>
 <dd>
-<section class="desc"><p>Base types for JSON.</p></section>
+<div class="desc"><p>Base types for JSON.</p></div>
 </dd>
 <dt id="typing_json.typechecking.KEYABLE_BASE_TYPES"><code class="name">var <span class="ident">KEYABLE_BASE_TYPES</span></code></dt>
 <dd>
-<section class="desc"><p>Base types that can be used for dictionary keys.</p></section>
+<div class="desc"><p>Base types that can be used for dictionary keys.</p></div>
 </dd>
 <dt id="typing_json.typechecking.TYPECHECKABLE_BASE_TYPES"><code class="name">var <span class="ident">TYPECHECKABLE_BASE_TYPES</span></code></dt>
 <dd>
-<section class="desc"><p>Base types that can be typechecked.</p></section>
+<div class="desc"><p>Base types that can be typechecked.</p></div>
 </dd>
 </dl>
 </section>
@@ -486,12 +567,12 @@ def is_namedtuple(t: Type, failure_callback: Optional[Callable[[str], None]] = N
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="typing_json.typechecking.is_instance"><code class="name flex">
-<span>def <span class="ident">is_instance</span></span>(<span>obj: Any, t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, cast_decimal: bool = True) -> bool</span>
+<span>def <span class="ident">is_instance</span></span>(<span>obj: Any, t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, cast_decimal: bool = True) ‑> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether an object <code>obj</code> is an instance of type <code>t</code>, extending the dynamical typechecking capabilities of the
+<div class="desc"><p>Checks whether an object <code>obj</code> is an instance of type <code>t</code>, extending the dynamical typechecking capabilities of the
 builtin <code>isinstance</code> to some of the <code>typing</code> generics and to certain types constructed with <code>typing.NamedTuple</code>.
-On the basic typecheckable types (cf.&nbsp;<a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a>), it acts as the builtin <code>isinstance</code>,
+On the basic typecheckable types (cf.&nbsp;<code><a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable">is_typecheckable()</a></code>), it acts as the builtin <code>isinstance</code>,
 with tje following exceptions:</p>
 <ul>
 <li>if the optional parameter <code>cast_decimal</code> is set to <code>True</code>, instances of <code>decimal.Decimal</code> are deemed to be instances of <code>float</code> (and <code>int</code> if integral) by this function;</li>
@@ -513,7 +594,7 @@ which encode integers have to be deemed of type <code>int</code> or <code>float<
     &gt;&gt;&gt; is_instance(Decimal(1.1), float, cast_decimal=False)
     False
 </code></pre>
-<p>Literals in <code>typing_extensions.Literal</code> can only be of one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>.</p></section>
+<p>Literals in <code>typing_extensions.Literal</code> can only be of one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -592,6 +673,20 @@ which encode integers have to be deemed of type <code>int</code> or <code>float<
             field_val = getattr(obj, field)
             if not is_instance(field_val, field_types[field], failure_callback=failure_callback, cast_decimal=cast_decimal):
                 return _not_instance(&#34;Value %s is not of type %s: wrong type %s for field %s, expected %s.&#34;%(short_str(obj), str(t), str(type(field_val)), field, str(field_types[field])), failure_callback=failure_callback)
+        return True
+    if is_typed_dict(t, failure_callback=failure_callback):
+        # For typed dictionaries, check that all fields have value of designated type, and that they are all defined if `t.__total__` is `True`.
+        if not isinstance(obj, dict):
+            return _not_instance(&#34;Value %s is not of type %s: wrong class %s (expected `dict`).&#34;%(short_str(obj), str(t), str(obj.__class__)), failure_callback=failure_callback)
+        field_types = getattr(t, &#34;__annotations__&#34;)
+        total = getattr(t, &#34;__total__&#34;)
+        for field in field_types:
+            if total and field not in obj:
+                return _not_instance(&#34;Value %s is not of type %s: missing field %s (typed dict is total).&#34;%(short_str(obj), str(t), field), failure_callback=failure_callback)
+            if field in obj:
+                field_val = obj[field]
+                if not is_instance(field_val, field_types[field], failure_callback=failure_callback, cast_decimal=cast_decimal):
+                    return _not_instance(&#34;Value %s is not of type %s: wrong type %s for field %s, expected %s.&#34;%(short_str(obj), str(t), str(type(field_val)), field, str(field_types[field])), failure_callback=failure_callback)
         return True
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # Special cases for `typing` generics.
@@ -688,12 +783,12 @@ which encode integers have to be deemed of type <code>int</code> or <code>float<
 </details>
 </dd>
 <dt id="typing_json.typechecking.is_keyable"><code class="name flex">
-<span>def <span class="ident">is_keyable</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) -> bool</span>
+<span>def <span class="ident">is_keyable</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) ‑> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Check whether <code>t</code> is a type that can be used as a key when encoding/decoding mappings
+<div class="desc"><p>Check whether <code>t</code> is a type that can be used as a key when encoding/decoding mappings
 using this library.
-This function is used only in <a title="typing_json.encoding.is_json_encodable" href="encoding.html#typing_json.encoding.is_json_encodable"><code>is_json_encodable()</code></a>, to decided whether a
+This function is used only in <code><a title="typing_json.encoding.is_json_encodable" href="encoding.html#typing_json.encoding.is_json_encodable">is_json_encodable()</a></code>, to decided whether a
 mapping type is JSON encodable using this library.</p>
 <p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of
 the reasons behind this method returning <code>False</code> on a given type <code>t</code>.</p>
@@ -704,8 +799,8 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 <li>it is a variadic <code>typing.Tuple</code>, a <code>typing.FrozenSet</code> or a <code>typing.Optional</code> and its generic type argument is keyable;</li>
 <li>it is a fixed-length <code>typing.Tuple</code> or a <code>typing.Union</code> and all of its generic type arguments are keyable;</li>
 <li>it is a <code>typing_extensions.Literal</code>;</li>
-<li>it is a named tuple according to <a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all of its fields are of keyable type.</li>
-</ul></section>
+<li>it is a named tuple according to <code><a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple">is_namedtuple()</a></code> and all of its fields are of keyable type.</li>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -772,10 +867,10 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 </details>
 </dd>
 <dt id="typing_json.typechecking.is_namedtuple"><code class="name flex">
-<span>def <span class="ident">is_namedtuple</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) -> bool</span>
+<span>def <span class="ident">is_namedtuple</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, check_typecheckable: bool = True, check_keyable: bool = False, cast_decimal: bool = True) ‑> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether <code>t</code> is a type constructed using <code>typing.NamedTuple</code>, using the following procedure:</p>
+<div class="desc"><p>Checks whether <code>t</code> is a type constructed using <code>typing.NamedTuple</code>, using the following procedure:</p>
 <ol>
 <li>checks for existence of the attribute <code>t.__bases__</code>, containing the base classes of <code>t</code>;</li>
 <li>checks that there is exactly one base class in <code>t.__bases__</code>, namely <code>tuple</code>;</li>
@@ -789,12 +884,12 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 </ol>
 <p>The procedure above weeds out many incorrect examples, but certainly needs to be improved to catch all exceptions.</p>
 <p>If the optional parameter <code>check_typecheckable</code> is set to <code>True</code> (default: <code>True</code>), an additional check is added between 6. and 7. above
-for all field types to be typecheckable according to <a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a>.
+for all field types to be typecheckable according to <code><a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable">is_typecheckable()</a></code>.
 If the optional parameter <code>check_keyable</code> is set to <code>True</code> (default: <code>False</code>), an additional check is added between 6. and 7. above
-for all field types to be keyable according to <a title="typing_json.typechecking.is_keyable" href="#typing_json.typechecking.is_keyable"><code>is_keyable()</code></a>.
+for all field types to be keyable according to <code><a title="typing_json.typechecking.is_keyable" href="#typing_json.typechecking.is_keyable">is_keyable()</a></code>.
 If the optional parameter <code>check_typecheckable</code> is set to <code>True</code> (default: <code>True</code>), an additional check is added between 8. and 9. above
-for all field default values to be instances of the corresponding field types, according to <a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance"><code>is_instance()</code></a> (the value
-of the optional parameter <code>cast_decimal</code> is passed to <a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance"><code>is_instance()</code></a> when performing this check).</p></section>
+for all field default values to be instances of the corresponding field types, according to <code><a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance">is_instance()</a></code> (the value
+of the optional parameter <code>cast_decimal</code> is passed to <code><a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance">is_instance()</a></code> when performing this check).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -868,13 +963,13 @@ of the optional parameter <code>cast_decimal</code> is passed to <a title="typin
 </details>
 </dd>
 <dt id="typing_json.typechecking.is_typecheckable"><code class="name flex">
-<span>def <span class="ident">is_typecheckable</span></span>(<span>t: Any, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) -> bool</span>
+<span>def <span class="ident">is_typecheckable</span></span>(<span>t: Any, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) ‑> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether <code>t</code> can be type-checked according to the <a title="typing_json" href="index.html"><code>typing_json</code></a> library.
+<div class="desc"><p>Checks whether <code>t</code> can be type-checked according to the <code><a title="typing_json" href="index.html">typing_json</a></code> library.
 This is a pre-requisite for <code>t</code> to be JSON encodable/decodable in the library.
 It is also a pre-requisite for all fields of types deemed to be namedtuples
-by <a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a>.</p>
+by <code><a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple">is_namedtuple()</a></code>.</p>
 <p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of
 the reasons behind this method returning <code>False</code> on a given type <code>t</code>.</p>
 <p>At present, a type is typecheckable if it satisfies one of the following conditions:</p>
@@ -884,8 +979,10 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 <li>it is one of <code>typing.List</code>, <code>typing.Set</code>, <code>typing.FrozenSet</code>, <code>typing.Deque</code>, <code>typing.Optional</code> or variadic <code>typing.Tuple</code> and its generic type argument is typecheckable;</li>
 <li>it is one of <code>typing.Dict</code>, <code>typing.OrderedDict</code>, <code>typing.Mapping</code>, <code>typing.Union</code> or fixed-length <code>typing.Tuple</code> and all of its generic type arguments are typecheckable;</li>
 <li>it is a <code>typing.Literal</code> including literals of one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code> or <code>NoneType</code>;</li>
-<li>it is a named tuple according to <a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all of its fields are of typecheckable type.</li>
-</ul></section>
+<li>it is a named tuple according to <code><a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple">is_namedtuple()</a></code> and all of its fields are of typecheckable type;</li>
+<li>it is a typed dictionary according to <code><a title="typing_json.typechecking.is_typed_dict" href="#typing_json.typechecking.is_typed_dict">is_typed_dict()</a></code> and all of its values are of typecheckable type.</li>
+</ul>
+<p>(Version 0.1.3)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -907,7 +1004,10 @@ the reasons behind this method returning <code>False</code> on a given type <cod
         - it is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or variadic `typing.Tuple` and its generic type argument is typecheckable;
         - it is one of `typing.Dict`, `typing.OrderedDict`, `typing.Mapping`, `typing.Union` or fixed-length `typing.Tuple` and all of its generic type arguments are typecheckable;
         - it is a `typing.Literal` including literals of one of the JSON basic types `bool`, `int`, `float`, `str` or `NoneType`;
-        - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type.
+        - it is a named tuple according to `typing_json.typechecking.is_namedtuple` and all of its fields are of typecheckable type;
+        - it is a typed dictionary according to `typing_json.typechecking.is_typed_dict` and all of its values are of typecheckable type.
+
+        (Version 0.1.3)
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches
     if t in TYPECHECKABLE_BASE_TYPES:
@@ -949,14 +1049,94 @@ the reasons behind this method returning <code>False</code> on a given type <cod
         # Types inheriting from `typing.NamedTuple` are typecheckable, because `is_namedtuple` already
         # enforces fields to be of typecheckable type.
         return True
+    if is_typed_dict(t, failure_callback=failure_callback):
+        # Types inheriting from `typing.TypedDict` are typecheckable, because `is_typed_dict` already
+        # enforces fields to be of typecheckable type.
+        return True
     return _not_typecheckable(&#34;Type %s is not typecheckable.&#34;%str(t), failure_callback=failure_callback)</code></pre>
 </details>
 </dd>
-<dt id="typing_json.typechecking.short_str"><code class="name flex">
-<span>def <span class="ident">short_str</span></span>(<span>obj: Any) -> str</span>
+<dt id="typing_json.typechecking.is_typed_dict"><code class="name flex">
+<span>def <span class="ident">is_typed_dict</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None, check_typecheckable: bool = True, cast_decimal: bool = True) ‑> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Returns a shortened string representation of <code>obj</code>, for use in error messages.</p></section>
+<div class="desc"><p>Checks whether <code>t</code> is a type constructed using <code>typing_extensions.TypedDict</code>, using the following procedure:</p>
+<ol>
+<li>checks for existence of the attribute <code>t.__bases__</code>, containing the base classes of <code>t</code>;</li>
+<li>checks that there is exactly one base class in <code>t.__bases__</code>, namely <code>dict</code>;</li>
+<li>checks for existence of the attribute <code>t.__annotations__</code>;</li>
+<li>checks that <code>t.__annotations__</code> is a <code>dict</code> with <code>string</code> keys;</li>
+<li>checks for existence of the attribute <code>t.__total__</code>;</li>
+<li>checks that <code>t.__total__</code> is a <code>bool</code>;</li>
+</ol>
+<p>The procedure above weeds out many incorrect examples, but certainly needs to be improved to catch all exceptions.
+Field types are ex</p>
+<p>If the optional parameter <code>check_typecheckable</code> is set to <code>True</code> (default: <code>True</code>), an additional check is added,
+for all field types to be typecheckable according to <code><a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable">is_typecheckable()</a></code>.
+If the optional parameter <code>check_typecheckable</code> is set to <code>True</code> (default: <code>True</code>), an additional check is added,
+for all field default values to be instances of the corresponding field types, according to <code><a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance">is_instance()</a></code> (the value
+of the optional parameter <code>cast_decimal</code> is passed to <code><a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance">is_instance()</a></code> when performing this check).</p>
+<p>(Version 0.1.3)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_typed_dict(t: Type, failure_callback: Optional[Callable[[str], None]] = None, check_typecheckable: bool = True, cast_decimal: bool = True) -&gt; bool:
+    &#34;&#34;&#34;
+        Checks whether `t` is a type constructed using `typing_extensions.TypedDict`, using the following procedure:
+
+        1. checks for existence of the attribute `t.__bases__`, containing the base classes of `t`;
+        2. checks that there is exactly one base class in `t.__bases__`, namely `dict`;
+        3. checks for existence of the attribute `t.__annotations__`;
+        4. checks that `t.__annotations__` is a `dict` with `string` keys;
+        3. checks for existence of the attribute `t.__total__`;
+        4. checks that `t.__total__` is a `bool`;
+
+        The procedure above weeds out many incorrect examples, but certainly needs to be improved to catch all exceptions.
+        Field types are ex
+
+        If the optional parameter `check_typecheckable` is set to `True` (default: `True`), an additional check is added,
+        for all field types to be typecheckable according to `typing_json.typechecking.is_typecheckable`.
+        If the optional parameter `check_typecheckable` is set to `True` (default: `True`), an additional check is added,
+        for all field default values to be instances of the corresponding field types, according to `typing_json.typechecking.is_instance` (the value
+        of the optional parameter `cast_decimal` is passed to `typing_json.typechecking.is_instance` when performing this check).
+
+        (Version 0.1.3)
+    &#34;&#34;&#34;
+    # pylint:disable = too-many-return-statements, too-many-branches, protected-access
+    if not hasattr(t, &#34;__bases__&#34;):
+        return _not_typed_dict(&#34;Type %s has no attribute __bases__.&#34;%str(t), failure_callback=failure_callback)
+    base_classes = t.__bases__
+    if len(base_classes) != 1 or base_classes[0] != dict:
+        return _not_typed_dict(&#34;Attribute bases for type %s should be [dict], found %s instead&#34;%(str(t), str(t.__bases__)), failure_callback=failure_callback)
+    if not hasattr(t, &#34;__annotations__&#34;):
+        return _not_typed_dict(&#34;Type %s has no attribute __annotations__.&#34;%str(t), failure_callback=failure_callback)
+    fields = getattr(t, &#34;__annotations__&#34;)
+    if not isinstance(fields, dict):
+        return _not_typed_dict(&#34;Attribute __annotations__ for type %s should be a dict, found %s instead.&#34;%(str(t), str(fields)), failure_callback=failure_callback)
+    if not all(isinstance(n, str) for n in fields):
+        return _not_typed_dict(&#34;Attribute __annotations__ for type %s should be a dict of strings, found %s instead.&#34;%(str(t), str(fields)), failure_callback=failure_callback)
+    if not hasattr(t, &#34;__total__&#34;):
+        return _not_typed_dict(&#34;Type %s has no attribute __total__.&#34;%str(t), failure_callback=failure_callback)
+    total = getattr(t, &#34;__total__&#34;)
+    if not isinstance(total, bool):
+        return _not_typed_dict(&#34;Attribute __total__ for type %s should be bool, found %s instead.&#34;%(str(t), str(total)), failure_callback=failure_callback)
+    for n in fields:
+        if check_typecheckable and not is_typecheckable(fields[n], failure_callback=failure_callback):
+            return _not_typed_dict(&#34;Field %s for type %s has non-typecheckable field type %s.&#34;%(n, str(t), str(fields[n])), failure_callback=failure_callback)
+        if hasattr(t, n):
+            # default value set for this field
+            field_default = getattr(t, n)
+            if check_typecheckable and not is_instance(field_default, fields[n], failure_callback=failure_callback, cast_decimal=cast_decimal):
+                return _not_typed_dict(&#34;Default value for field %s of type %s should be of type %s, found type %s instead.&#34;%(n, str(t), str(fields[n]), str(type(field_default))), failure_callback=failure_callback)
+    return True</code></pre>
+</details>
+</dd>
+<dt id="typing_json.typechecking.short_str"><code class="name flex">
+<span>def <span class="ident">short_str</span></span>(<span>obj: Any) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a shortened string representation of <code>obj</code>, for use in error messages.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -992,11 +1172,12 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="typing_json.typechecking.is_instance" href="#typing_json.typechecking.is_instance">is_instance</a></code></li>
 <li><code><a title="typing_json.typechecking.is_keyable" href="#typing_json.typechecking.is_keyable">is_keyable</a></code></li>
 <li><code><a title="typing_json.typechecking.is_namedtuple" href="#typing_json.typechecking.is_namedtuple">is_namedtuple</a></code></li>
 <li><code><a title="typing_json.typechecking.is_typecheckable" href="#typing_json.typechecking.is_typecheckable">is_typecheckable</a></code></li>
+<li><code><a title="typing_json.typechecking.is_typed_dict" href="#typing_json.typechecking.is_typed_dict">is_typed_dict</a></code></li>
 <li><code><a title="typing_json.typechecking.short_str" href="#typing_json.typechecking.short_str">short_str</a></code></li>
 </ul>
 </li>
@@ -1004,9 +1185,7 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>

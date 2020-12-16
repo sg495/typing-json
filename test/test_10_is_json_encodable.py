@@ -6,7 +6,7 @@ from typing import Union, Optional, List, Tuple, Set, FrozenSet, Mapping, Dict, 
 from decimal import Decimal
 
 # external dependencies
-from typing_extensions import Literal
+from typing_extensions import Literal, TypedDict
 
 # internal imports
 from typing_json.typechecking import TYPECHECKABLE_BASE_TYPES
@@ -134,3 +134,34 @@ def test_is_json_encodable_namedtuple():
         name: List[NonTypechekableT]
         value: Union[int, float]
     assert not is_json_encodable(NonTypecheckableNamedTupleExampleT, failure_callback=failure_callback)
+
+
+def test_is_json_encodable_typed_dict():
+    """
+        Tests that typed dicts are typecheckable if
+        and only if their attributes are of JSON encodable type.
+    """
+    class TypedDictExample1T(TypedDict):
+        name: Tuple[str, ...]
+        value: Union[int, float]
+    assert is_json_encodable(TypedDictExample1T, failure_callback=failure_callback)
+    class TypedDictExample2T(TypedDict):
+        name: List[str] = ["Hello"]
+        value: Union[int, float]
+    assert is_json_encodable(TypedDictExample2T, failure_callback=failure_callback)
+    class NonTypechekableT:
+        name: str
+        val: int
+    class NonTypecheckableTypedDictExample1T(TypedDict):
+        name: List[NonTypechekableT]
+        value: Union[int, float]
+    assert not is_json_encodable(NonTypecheckableTypedDictExample1T, failure_callback=failure_callback)
+    class NonTypecheckableTypedDictExample2T(TypedDict):
+        name: str = 10
+        value: Union[int, float]
+    assert not is_json_encodable(NonTypecheckableTypedDictExample2T, failure_callback=failure_callback)
+    class NonEncodableTypedDictExample3T(TypedDict):
+        name: bytes
+        value: Union[int, float]
+    assert not is_json_encodable(NonEncodableTypedDictExample3T, failure_callback=failure_callback)
+

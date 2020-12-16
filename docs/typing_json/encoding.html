@@ -3,16 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.5" />
+<meta name="generator" content="pdoc 0.9.1" />
 <title>typing_json.encoding API documentation</title>
 <meta name="description" content="The `typing_json.encoding` provides functionality for type-aware JSON-encoding of objects …" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script async src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_CHTML'></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -21,11 +23,11 @@
 <h1 class="title">Module <code>typing_json.encoding</code></h1>
 </header>
 <section id="section-intro">
-<p>The <a title="typing_json.encoding" href="#typing_json.encoding"><code>typing_json.encoding</code></a> provides functionality for type-aware JSON-encoding of objects.</p>
-<p>The core functionality is provided by <a title="typing_json.encoding.to_json_obj" href="#typing_json.encoding.to_json_obj"><code>to_json_obj()</code></a>, which JSON-encodes instances
+<p>The <code><a title="typing_json.encoding" href="#typing_json.encoding">typing_json.encoding</a></code> provides functionality for type-aware JSON-encoding of objects.</p>
+<p>The core functionality is provided by <code><a title="typing_json.encoding.to_json_obj" href="#typing_json.encoding.to_json_obj">to_json_obj()</a></code>, which JSON-encodes instances
 of basic JSON types, typed collections from the <code>typing</code> module, literal types, union types, optional types
 and (certain) typed namedtuples.
-The JSON-encoding preserves all information necessary to reconstruct the at decoding time (cf. <a title="typing_json.decoding.from_json_obj" href="decoding.html#typing_json.decoding.from_json_obj"><code>from_json_obj()</code></a>).</p>
+The JSON-encoding preserves all information necessary to reconstruct the at decoding time (cf. <code><a title="typing_json.decoding.from_json_obj" href="decoding.html#typing_json.decoding.from_json_obj">from_json_obj()</a></code>).</p>
 <p>(Version: 0.1.2)</p>
 <details class="source">
 <summary>
@@ -55,7 +57,7 @@ from typing import Any, Callable, List, Optional, Union, Type
 from typing_extensions import Literal
 
 # internal imports
-from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_typecheckable, JSON_BASE_TYPES, short_str
+from typing_json.typechecking import is_instance, is_keyable, is_namedtuple, is_typecheckable, is_typed_dict, JSON_BASE_TYPES, short_str
 
 
 _UNREACHABLE_ERROR_MSG = &#34;Should never reach this point, please open an issue on GitHub.&#34;
@@ -83,11 +85,13 @@ def is_json_encodable(t: Type, failure_callback: Optional[Callable[[str], None]]
         - if `t` is `None` (used as an alias for `NoneType`);
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`);
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable;
+        - if `t` is a typed dictionary according to `typing_json.typechecking.is_typed_dict` and all its values are JSON encodable;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or a variadic `typing.Tuple` and its generic type argument is JSON encodable;
         - if `t` is a `typing.Union` or a fixed-length `typing.Tuple` and all of its generic type arguments are JSON encodable;
         - if `t` is a `typing.Dict`, `typing.OrderedDict` or `typing.Mapping`, its generic key type is keyable (according to `typing_json.typechecking.is_keyable`) and both its generic key and value types are JSON encodable;
         - if `t` is a `typing_extensions.Literal` and all of its literal arguments are of JSON basic type.
 
+        (Version 0.1.3)
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches
     if not is_typecheckable(t, failure_callback=failure_callback):
@@ -111,6 +115,12 @@ def is_json_encodable(t: Type, failure_callback: Optional[Callable[[str], None]]
             # namedtuples are encodable if all their fields are of encodable types
             return True
         return _not_json_encodable(&#34;Not all fields of namedtuple %s are json-encodable.&#34;%str(t), failure_callback=failure_callback)
+    if is_typed_dict(t):
+        field_types = getattr(t, &#34;__annotations__&#34;)
+        if all(is_json_encodable(field_types[field], failure_callback=failure_callback) for field in field_types):
+            # typed dicts are encodable if all their fields are of encodable types
+            return True
+        return _not_json_encodable(&#34;Not all fields of typed dict %s are json-encodable.&#34;%str(t), failure_callback=failure_callback)
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # `typing` generics
         if t.__origin__ in (list, set, frozenset, deque, Optional):
@@ -193,6 +203,7 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = 
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`), the enum value name `obj._name_` is returned;
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `False`, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `True`, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);
+        - if `t` is a typed dict according to `typing_json.typechecking.is_typed_dict` and all its values are JSON encodable, then a dictionary is returned with the same keys as `obj` and JSON-encoded values using the types specified by `t`.
         - if `t` is `typing.Union`, the generic type arguments in the union are tried one after the other until a `u` is found such that `is_instance(obj, u)`, then `obj` is JSON-encoded using `u` as its type.
         - if `t` is a `typing_extensions.Literal`, `obj` is returned unchanged;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` or `typing.Tuple`, a list is returned containing the elements of the original collection, recursively JSON-encoded;
@@ -210,6 +221,7 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = 
         An optional parameter `typecheck` (default: `True`) can be used to skip the check that `t` be JSON encodable and that `obj` be an instance of `t`.
         The parameter `typecheck` is set to `False` in all recursive calls (i.e. typechecking is only done once).
 
+        (Version 0.1.3)
     &#34;&#34;&#34;
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
     if typecheck:
@@ -242,6 +254,18 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = 
         # Namedtuples are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
         field_types = getattr(t, &#34;_field_types&#34;)
         return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
+    if is_typed_dict(t):
+        # Typed dicts are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
+        field_types = getattr(t, &#34;__annotations__&#34;)
+        # return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
+        # A `dict`is used for `typing.Dict` and `typing.Mapping`.
+        return {
+            field: to_json_obj(obj[field], field_type,
+                               use_decimal=use_decimal,
+                               typecheck=False,
+                               namedtuples_as_lists=namedtuples_as_lists)
+            for field, field_type in field_types.items()
+        }
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # Generics from the `typing` module.
         if t.__origin__ is Union:
@@ -300,25 +324,27 @@ def to_json_obj(obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = 
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="typing_json.encoding.is_json_encodable"><code class="name flex">
-<span>def <span class="ident">is_json_encodable</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) -> bool</span>
+<span>def <span class="ident">is_json_encodable</span></span>(<span>t: Type, failure_callback: Union[Callable[[str], NoneType], NoneType] = None) ‑> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether a type <code>t</code> can be encoded into JSON (or decoded from JSON) using the <a title="typing_json" href="index.html"><code>typing_json</code></a> library.</p>
+<div class="desc"><p>Checks whether a type <code>t</code> can be encoded into JSON (or decoded from JSON) using the <code><a title="typing_json" href="index.html">typing_json</a></code> library.</p>
 <p>The optional parameter <code>failure_callback</code> can be used to collect a detailed trace of
 the reasons behind this method returning <code>False</code> on a given type <code>t</code>.</p>
 <p>Currently, a type <code>t</code> is JSON encodable according to this method if it is typecheckable according to
-<a title="typing_json.typechecking.is_typecheckable" href="typechecking.html#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a> and it satisfies one of the following conditions:</p>
+<code><a title="typing_json.typechecking.is_typecheckable" href="typechecking.html#typing_json.typechecking.is_typecheckable">is_typecheckable()</a></code> and it satisfies one of the following conditions:</p>
 <ul>
 <li>if <code>t</code> is one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>;</li>
 <li>if <code>t</code> is a <code>decimal.Decimal</code>;</li>
 <li>if <code>t</code> is <code>None</code> (used as an alias for <code>NoneType</code>);</li>
 <li>if <code>t</code> is an enum (i.e. <code>isinstance(t, EnumMeta)</code>);</li>
-<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable;</li>
+<li>if <code>t</code> is a namedtuple according to <code><a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple">is_namedtuple()</a></code> and all its fields are JSON encodable;</li>
+<li>if <code>t</code> is a typed dictionary according to <code><a title="typing_json.typechecking.is_typed_dict" href="typechecking.html#typing_json.typechecking.is_typed_dict">is_typed_dict()</a></code> and all its values are JSON encodable;</li>
 <li>if <code>t</code> is one of <code>typing.List</code>, <code>typing.Set</code>, <code>typing.FrozenSet</code>, <code>typing.Deque</code>, <code>typing.Optional</code> or a variadic <code>typing.Tuple</code> and its generic type argument is JSON encodable;</li>
 <li>if <code>t</code> is a <code>typing.Union</code> or a fixed-length <code>typing.Tuple</code> and all of its generic type arguments are JSON encodable;</li>
-<li>if <code>t</code> is a <code>typing.Dict</code>, <code>typing.OrderedDict</code> or <code>typing.Mapping</code>, its generic key type is keyable (according to <a title="typing_json.typechecking.is_keyable" href="typechecking.html#typing_json.typechecking.is_keyable"><code>is_keyable()</code></a>) and both its generic key and value types are JSON encodable;</li>
+<li>if <code>t</code> is a <code>typing.Dict</code>, <code>typing.OrderedDict</code> or <code>typing.Mapping</code>, its generic key type is keyable (according to <code><a title="typing_json.typechecking.is_keyable" href="typechecking.html#typing_json.typechecking.is_keyable">is_keyable()</a></code>) and both its generic key and value types are JSON encodable;</li>
 <li>if <code>t</code> is a <code>typing_extensions.Literal</code> and all of its literal arguments are of JSON basic type.</li>
-</ul></section>
+</ul>
+<p>(Version 0.1.3)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -338,11 +364,13 @@ the reasons behind this method returning <code>False</code> on a given type <cod
         - if `t` is `None` (used as an alias for `NoneType`);
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`);
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable;
+        - if `t` is a typed dictionary according to `typing_json.typechecking.is_typed_dict` and all its values are JSON encodable;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque`, `typing.Optional` or a variadic `typing.Tuple` and its generic type argument is JSON encodable;
         - if `t` is a `typing.Union` or a fixed-length `typing.Tuple` and all of its generic type arguments are JSON encodable;
         - if `t` is a `typing.Dict`, `typing.OrderedDict` or `typing.Mapping`, its generic key type is keyable (according to `typing_json.typechecking.is_keyable`) and both its generic key and value types are JSON encodable;
         - if `t` is a `typing_extensions.Literal` and all of its literal arguments are of JSON basic type.
 
+        (Version 0.1.3)
     &#34;&#34;&#34;
     # pylint: disable = too-many-return-statements, too-many-branches
     if not is_typecheckable(t, failure_callback=failure_callback):
@@ -366,6 +394,12 @@ the reasons behind this method returning <code>False</code> on a given type <cod
             # namedtuples are encodable if all their fields are of encodable types
             return True
         return _not_json_encodable(&#34;Not all fields of namedtuple %s are json-encodable.&#34;%str(t), failure_callback=failure_callback)
+    if is_typed_dict(t):
+        field_types = getattr(t, &#34;__annotations__&#34;)
+        if all(is_json_encodable(field_types[field], failure_callback=failure_callback) for field in field_types):
+            # typed dicts are encodable if all their fields are of encodable types
+            return True
+        return _not_json_encodable(&#34;Not all fields of typed dict %s are json-encodable.&#34;%str(t), failure_callback=failure_callback)
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # `typing` generics
         if t.__origin__ in (list, set, frozenset, deque, Optional):
@@ -406,14 +440,14 @@ the reasons behind this method returning <code>False</code> on a given type <cod
 </details>
 </dd>
 <dt id="typing_json.encoding.to_json_obj"><code class="name flex">
-<span>def <span class="ident">to_json_obj</span></span>(<span>obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = True, namedtuples_as_lists=False) -> Any</span>
+<span>def <span class="ident">to_json_obj</span></span>(<span>obj: Any, t: Type, use_decimal: bool = False, typecheck: bool = True, namedtuples_as_lists=False) ‑> Any</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Encodes an instance <code>obj</code> of typecheckable type <code>t</code> into a JSON object.
+<div class="desc"><p>Encodes an instance <code>obj</code> of typecheckable type <code>t</code> into a JSON object.
 The optional <code>use_decimal</code> parameter can be used to specify that instances of
 <code>decimal.Decimal</code> can be used in the output: if <code>False</code>, they are converted to strings.
-This method raises <code>TypeError</code> if type <code>t</code> is not typecheckable according to <a title="typing_json.typechecking.is_typecheckable" href="typechecking.html#typing_json.typechecking.is_typecheckable"><code>is_typecheckable()</code></a>.
-This method raises <code>TypeError</code> if <code>obj</code> is not of type <code>t</code> according to <a title="typing_json.typechecking.is_instance" href="typechecking.html#typing_json.typechecking.is_instance"><code>is_instance()</code></a>.</p>
+This method raises <code>TypeError</code> if type <code>t</code> is not typecheckable according to <code><a title="typing_json.typechecking.is_typecheckable" href="typechecking.html#typing_json.typechecking.is_typecheckable">is_typecheckable()</a></code>.
+This method raises <code>TypeError</code> if <code>obj</code> is not of type <code>t</code> according to <code><a title="typing_json.typechecking.is_instance" href="typechecking.html#typing_json.typechecking.is_instance">is_instance()</a></code>.</p>
 <p>Currently, this method acts as follows on an instance <code>obj</code> of type <code>t</code>:</p>
 <ul>
 <li>if <code>t</code> is one of the JSON basic types <code>bool</code>, <code>int</code>, <code>float</code>, <code>str</code>, <code>NoneType</code>, the instance <code>obj</code> is returned unchanged;</li>
@@ -421,8 +455,9 @@ This method raises <code>TypeError</code> if <code>obj</code> is not of type <co
 <li>if <code>t</code> is <code>decimal.Decimal</code> and <code>use_decimal</code> is <code>True</code>, <code>obj</code> is returned unchanged;</li>
 <li>if <code>t</code> is <code>None</code> (used as an alias for <code>NoneType</code>), <code>None</code> is returned;</li>
 <li>if <code>t</code> is an enum (i.e. <code>isinstance(t, EnumMeta)</code>), the enum value name <code>obj._name_</code> is returned;</li>
-<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable and <code>namedtuples_as_lists</code> is <code>False</code>, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;</li>
-<li>if <code>t</code> is a namedtuple according to <a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple"><code>is_namedtuple()</code></a> and all its fields are JSON encodable and <code>namedtuples_as_lists</code> is <code>True</code>, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);</li>
+<li>if <code>t</code> is a namedtuple according to <code><a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple">is_namedtuple()</a></code> and all its fields are JSON encodable and <code>namedtuples_as_lists</code> is <code>False</code>, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;</li>
+<li>if <code>t</code> is a namedtuple according to <code><a title="typing_json.typechecking.is_namedtuple" href="typechecking.html#typing_json.typechecking.is_namedtuple">is_namedtuple()</a></code> and all its fields are JSON encodable and <code>namedtuples_as_lists</code> is <code>True</code>, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);</li>
+<li>if <code>t</code> is a typed dict according to <code><a title="typing_json.typechecking.is_typed_dict" href="typechecking.html#typing_json.typechecking.is_typed_dict">is_typed_dict()</a></code> and all its values are JSON encodable, then a dictionary is returned with the same keys as <code>obj</code> and JSON-encoded values using the types specified by <code>t</code>.</li>
 <li>if <code>t</code> is <code>typing.Union</code>, the generic type arguments in the union are tried one after the other until a <code>u</code> is found such that <code>is_instance(obj, u)</code>, then <code>obj</code> is JSON-encoded using <code>u</code> as its type.</li>
 <li>if <code>t</code> is a <code>typing_extensions.Literal</code>, <code>obj</code> is returned unchanged;</li>
 <li>if <code>t</code> is one of <code>typing.List</code>, <code>typing.Set</code>, <code>typing.FrozenSet</code>, <code>typing.Deque</code> or <code>typing.Tuple</code>, a list is returned containing the elements of the original collection, recursively JSON-encoded;</li>
@@ -437,7 +472,8 @@ When encoding dictionaries, the keys used in the encoding follow the following c
 </ul>
 <p>Literals can only be of JSON basic type.</p>
 <p>An optional parameter <code>typecheck</code> (default: <code>True</code>) can be used to skip the check that <code>t</code> be JSON encodable and that <code>obj</code> be an instance of <code>t</code>.
-The parameter <code>typecheck</code> is set to <code>False</code> in all recursive calls (i.e. typechecking is only done once).</p></section>
+The parameter <code>typecheck</code> is set to <code>False</code> in all recursive calls (i.e. typechecking is only done once).</p>
+<p>(Version 0.1.3)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -459,6 +495,7 @@ The parameter <code>typecheck</code> is set to <code>False</code> in all recursi
         - if `t` is an enum (i.e. `isinstance(t, EnumMeta)`), the enum value name `obj._name_` is returned;
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `False`, this method is called recursively on all field values and then an ordered dictionary is returned with the field names as names and the JSON-encoded field values as corresponding values;
         - if `t` is a namedtuple according to `typing_json.typechecking.is_namedtuple` and all its fields are JSON encodable and `namedtuples_as_lists` is `True`, this method is called recursively on all field values and then a list is returned with the JSON-encoded field values appearing in the same order as the namedtuple fields (which are not explicitly encoded);
+        - if `t` is a typed dict according to `typing_json.typechecking.is_typed_dict` and all its values are JSON encodable, then a dictionary is returned with the same keys as `obj` and JSON-encoded values using the types specified by `t`.
         - if `t` is `typing.Union`, the generic type arguments in the union are tried one after the other until a `u` is found such that `is_instance(obj, u)`, then `obj` is JSON-encoded using `u` as its type.
         - if `t` is a `typing_extensions.Literal`, `obj` is returned unchanged;
         - if `t` is one of `typing.List`, `typing.Set`, `typing.FrozenSet`, `typing.Deque` or `typing.Tuple`, a list is returned containing the elements of the original collection, recursively JSON-encoded;
@@ -476,6 +513,7 @@ The parameter <code>typecheck</code> is set to <code>False</code> in all recursi
         An optional parameter `typecheck` (default: `True`) can be used to skip the check that `t` be JSON encodable and that `obj` be an instance of `t`.
         The parameter `typecheck` is set to `False` in all recursive calls (i.e. typechecking is only done once).
 
+        (Version 0.1.3)
     &#34;&#34;&#34;
     # pylint:disable=invalid-name,too-many-return-statements,too-many-branches
     if typecheck:
@@ -508,6 +546,18 @@ The parameter <code>typecheck</code> is set to <code>False</code> in all recursi
         # Namedtuples are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
         field_types = getattr(t, &#34;_field_types&#34;)
         return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
+    if is_typed_dict(t):
+        # Typed dicts are encoded as ordered dictionaries, with their fields as keys and the JSON-encoded field values as corresponding values.
+        field_types = getattr(t, &#34;__annotations__&#34;)
+        # return _to_json_obj_namedtuple(obj, field_types, use_decimal=use_decimal, namedtuples_as_lists=namedtuples_as_lists)
+        # A `dict`is used for `typing.Dict` and `typing.Mapping`.
+        return {
+            field: to_json_obj(obj[field], field_type,
+                               use_decimal=use_decimal,
+                               typecheck=False,
+                               namedtuples_as_lists=namedtuples_as_lists)
+            for field, field_type in field_types.items()
+        }
     if hasattr(t, &#34;__origin__&#34;) and hasattr(t, &#34;__args__&#34;):
         # Generics from the `typing` module.
         if t.__origin__ is Union:
@@ -584,9 +634,7 @@ The parameter <code>typecheck</code> is set to <code>False</code> in all recursi
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>
